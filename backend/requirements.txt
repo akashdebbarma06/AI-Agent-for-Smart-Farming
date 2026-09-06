@@ -18,7 +18,7 @@ python-dotenv>=1.0.0,<2.0.0
 ibm-watsonx-ai>=1.0.0,<2.0.0
 
 # --- Vector store ---
-chromadb>=0.5.0,<1.0.0
+chromadb>=0.5.0,<2.0.0
 
 # --- Text splitting for RAG chunking ---
 langchain-text-splitters>=0.2.0,<1.0.0

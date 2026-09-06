@@ -45,12 +45,12 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------
 
     IBM_WATSONX_API_KEY: SecretStr = Field(
-        ...,
-        description="IBM Cloud API key with watsonx.ai access. Required.",
+        default=SecretStr(""),
+        description="IBM Cloud API key with watsonx.ai access.",
     )
     IBM_WATSONX_PROJECT_ID: str = Field(
-        ...,
-        description="watsonx.ai project ID (not the IBM Cloud account project). Required.",
+        default="",
+        description="watsonx.ai project ID.",
     )
     IBM_WATSONX_URL: str = Field(
         default="https://us-south.ml.cloud.ibm.com",
