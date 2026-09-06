@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: krishimitra-api
+    env: python
+    region: singapore # You can change to oregon, frankfurt, or ohio
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: IBM_WATSONX_URL
+        value: https://us-south.ml.cloud.ibm.com
+      - key: IBM_GRANITE_MODEL_ID
+        value: ibm/granite-4-h-small
+      - key: IBM_EMBEDDING_MODEL_ID
+        value: ibm/granite-embedding-278m-multilingual
+      - key: CHROMA_PERSIST_DIR
+        value: ./data/chroma_db
+      - key: CHROMA_COLLECTION_NAME
+        value: krishimitra_kb
+      - key: LOG_LEVEL
+        value: INFO
+      - key: CORS_ORIGINS
+        value: '["*"]'
+      - key: IBM_WATSONX_API_KEY
+        sync: false # Prompts you for secret value in Render dashboard
+      - key: IBM_WATSONX_PROJECT_ID
+        sync: false # Prompts you for project ID in Render dashboard
