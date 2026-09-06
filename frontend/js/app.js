@@ -11,10 +11,14 @@
  *  - Indian Mobile OTP Authentication Modal
  */
 
-// Dynamically determine API Base URL (Supports localhost dev, same-origin production, or custom API origin)
+// Backend Endpoint Configuration
+const PRODUCTION_API_URL = "https://krishimitra-api-g5d8.onrender.com";
+
+// Dynamically determine API Base URL (Supports localhost dev & production live API)
 const API_BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
   ? (window.location.port === "8000" ? "" : "http://localhost:8000")
-  : "";
+  : PRODUCTION_API_URL;
+
 const CHAT_ENDPOINT = `${API_BASE_URL}/api/v1/chat`;
 const HEALTH_ENDPOINT = `${API_BASE_URL}/api/v1/health`;
 
