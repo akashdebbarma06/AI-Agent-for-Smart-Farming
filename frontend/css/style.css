@@ -1,0 +1,87 @@
+/* ==========================================================================
+   KrishiMitra AI — Responsive & Modern Agronomy Stylesheet
+   ========================================================================== */
+
+@layer base {
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #f9faf5;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d4d4cb;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b5b5aa;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: #27302b;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: #36423b;
+}
+
+/* Micro-Animations */
+@keyframes typingBounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1.1); opacity: 1; }
+}
+
+.typing-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #116c4a;
+  animation: typingBounce 1.2s infinite ease-in-out;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* Custom Editorial Serif Headline Accents */
+.font-editorial {
+  font-family: 'Newsreader', Georgia, serif;
+}
+
+/* Mobile Sidebar Backdrop */
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(1, 45, 29, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 35;
+  transition: opacity 0.3s ease;
+}
+
+/* Responsive Touch Optimizations */
+button, select, input, textarea, a {
+  touch-action: manipulation;
+}
+
+/* Safe area insets for notched phones */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+}

@@ -1,0 +1,3 @@
+# Root-level requirements file — delegates to backend
+# Install with: pip install -r backend/requirements.txt
+-r backend/requirements.txt
