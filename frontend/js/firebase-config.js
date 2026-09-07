@@ -1,33 +1,78 @@
 /**
- * KrishiMitra AI — Firebase Configuration
+ * KrishiMitra AI — Dynamic Firebase Configuration Loader
  * 
- * Initializes Firebase App, Auth, and Firestore.
- * Firebase config is loaded from a non-secret public config object.
- * (Firebase web config keys are safe to expose in frontend code —
- *  security is enforced by Firebase Security Rules, not by hiding config.)
- * 
- * SETUP: Replace the placeholder values below with your actual Firebase project config.
- * Get these from: Firebase Console → Project Settings → General → Your Apps → Web App
+ * Secure Architecture:
+ * - NO API keys or credentials are hardcoded in this git repository.
+ * - Local development: Reads window.__FIREBASE_CONFIG__ from the gitignored
+ *   `frontend/js/firebase-config.local.js` if present.
+ * - Production: Dynamically fetches public web credentials from the backend
+ *   `/api/v1/auth/config` endpoint (backed by server environment variables).
  */
 
-// Firebase config — replace with your project's actual config
-const firebaseConfig = {
-  apiKey: "AIzaSyDummyKeyReplaceMeWithYourActualKey",
-  authDomain: "your-project-id.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project-id.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdef1234567890"
-};
+let firebaseAuth = null;
+let firebaseDB = null;
+let _firebaseInitPromise = null;
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+/**
+ * Ensures Firebase is properly initialized with valid credentials.
+ * Returns true if initialization succeeded, false otherwise.
+ */
+async function ensureFirebaseInitialized() {
+  if (firebase.apps && firebase.apps.length > 0) {
+    firebaseAuth = firebase.auth();
+    firebaseDB = firebase.firestore();
+    return true;
+  }
 
-// Export Firebase services for use by auth.js
-const firebaseAuth = firebase.auth();
-const firebaseDB = firebase.firestore();
+  if (_firebaseInitPromise) {
+    return _firebaseInitPromise;
+  }
 
-// Use the phone auth provider's language setting
-firebaseAuth.useDeviceLanguage();
+  _firebaseInitPromise = (async () => {
+    let config = window.__FIREBASE_CONFIG__ || null;
 
-console.log("[KrishiMitra] Firebase initialized.");
+    // If local config is not provided or is a placeholder, fetch from backend
+    if (!config || !config.apiKey || config.apiKey.includes("DummyKey") || config.projectId.includes("your-project-id")) {
+      try {
+        const prodApiUrl = "https://krishimitra-api-g5d8.onrender.com";
+        const apiUrl = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+          ? (window.location.port === "8000" ? "" : "http://localhost:8000")
+          : prodApiUrl;
+
+        const res = await fetch(`${apiUrl}/api/v1/auth/config`);
+        if (res.ok) {
+          const remoteConfig = await res.json();
+          if (remoteConfig && remoteConfig.apiKey && remoteConfig.apiKey.trim().length > 0) {
+            config = remoteConfig;
+          }
+        }
+      } catch (err) {
+        console.warn("[KrishiMitra] Unable to fetch Firebase config from backend:", err);
+      }
+    }
+
+    // Initialize if we have a valid configuration
+    if (config && config.apiKey && !config.apiKey.includes("DummyKey")) {
+      try {
+        firebase.initializeApp(config);
+        firebaseAuth = firebase.auth();
+        firebaseDB = firebase.firestore();
+        firebaseAuth.useDeviceLanguage();
+        console.log("[KrishiMitra] Firebase initialized securely.");
+        window.dispatchEvent(new CustomEvent("krishimitra:firebase-ready"));
+        return true;
+      } catch (err) {
+        console.error("[KrishiMitra] Firebase initialization error:", err);
+        return false;
+      }
+    }
+
+    console.warn("[KrishiMitra] Firebase credentials not configured.");
+    return false;
+  })();
+
+  return _firebaseInitPromise;
+}
+
+// Start resolving config immediately
+ensureFirebaseInitialized();

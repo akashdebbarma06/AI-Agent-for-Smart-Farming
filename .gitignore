@@ -34,3 +34,4 @@ logs/
 *.zip
 test_*.py
 response*.json
+frontend/js/firebase-config.local.js

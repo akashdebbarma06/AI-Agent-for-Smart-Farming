@@ -114,9 +114,11 @@ def create_app() -> FastAPI:
     # Register API routers under the versioned prefix
     from backend.app.api.routes.chat import router as chat_router
     from backend.app.api.routes.health import router as health_router
+    from backend.app.api.routes.auth import router as auth_router
 
     app.include_router(chat_router, prefix="/api/v1")
     app.include_router(health_router, prefix="/api/v1")
+    app.include_router(auth_router, prefix="/api/v1")
 
     # Global Exception Handler
     from fastapi import Request

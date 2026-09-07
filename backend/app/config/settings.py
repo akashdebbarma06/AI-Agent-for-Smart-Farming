@@ -101,6 +101,38 @@ class Settings(BaseSettings):
     )
 
     # ------------------------------------------------------------------
+    # Firebase Web Client Configuration (Served to frontend dynamically)
+    # ------------------------------------------------------------------
+    FIREBASE_API_KEY: str = Field(
+        default="",
+        description="Firebase Web API key.",
+    )
+    FIREBASE_AUTH_DOMAIN: str = Field(
+        default="",
+        description="Firebase Auth Domain.",
+    )
+    FIREBASE_PROJECT_ID: str = Field(
+        default="",
+        description="Firebase Project ID.",
+    )
+    FIREBASE_STORAGE_BUCKET: str = Field(
+        default="",
+        description="Firebase Storage Bucket.",
+    )
+    FIREBASE_MESSAGING_SENDER_ID: str = Field(
+        default="",
+        description="Firebase Messaging Sender ID.",
+    )
+    FIREBASE_APP_ID: str = Field(
+        default="",
+        description="Firebase Web App ID.",
+    )
+    FIREBASE_MEASUREMENT_ID: str = Field(
+        default="",
+        description="Firebase Measurement ID.",
+    )
+
+    # ------------------------------------------------------------------
     # Convenience property — exposes the API key as a plain string
     # only when explicitly requested (avoids accidental logging)
     # ------------------------------------------------------------------

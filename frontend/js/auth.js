@@ -46,10 +46,15 @@ const INDIAN_STATES_DISTRICTS = {
 };
 
 // ── Initialize Auth on Page Load ────────────────────────────────────────────
-document.addEventListener("DOMContentLoaded", () => {
-  initRecaptcha();
+document.addEventListener("DOMContentLoaded", async () => {
   populateStateDropdown();
-  setupAuthStateListener();
+  const ready = await ensureFirebaseInitialized();
+  if (ready && firebaseAuth) {
+    initRecaptcha();
+    setupAuthStateListener();
+  } else {
+    showAuthLoading(false);
+  }
 });
 
 /**
@@ -194,9 +199,9 @@ async function handleSendOTP() {
   setBtnLoading(btn, true, "Sending OTP...");
   clearAuthError();
 
-  // Check if Firebase config is still using placeholders
-  if (typeof firebaseConfig !== "undefined" && (firebaseConfig.apiKey.includes("DummyKey") || firebaseConfig.projectId.includes("your-project-id"))) {
-    showAuthError("Firebase is not configured yet. Please add your Firebase project credentials to frontend/js/firebase-config.js.");
+  const isReady = await ensureFirebaseInitialized();
+  if (!isReady || !firebaseAuth) {
+    showAuthError("Firebase authentication is not configured yet. Please configure Firebase credentials in your server environment variables.");
     setBtnLoading(btn, false, "Continue with OTP");
     return;
   }
