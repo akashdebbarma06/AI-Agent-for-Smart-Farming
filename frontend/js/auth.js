@@ -52,6 +52,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     setupAuthStateListener();
   } else {
     showAuthLoading(false);
+    showLandingView();
   }
 });
 
@@ -60,34 +61,54 @@ document.addEventListener("DOMContentLoaded", async () => {
  * Single source of truth for routing decisions.
  */
 function setupAuthStateListener() {
-  showAuthLoading(true);
+  // Safe timeout: never leave loading overlay visible for more than 2 seconds
+  const safetyTimer = setTimeout(() => {
+    showAuthLoading(false);
+    if (!currentUser) showLandingView();
+  }, 2000);
 
   firebaseAuth.onAuthStateChanged(async (user) => {
+    clearTimeout(safetyTimer);
+
     if (user) {
       currentUser = user;
       console.log("[Auth] User signed in:", user.email || user.uid);
 
-      // Check if profile exists in Firestore
-      try {
-        const profileDoc = await firebaseDB.collection("users").doc(user.uid).get();
-        if (profileDoc.exists) {
-          currentUserProfile = profileDoc.data();
+      // Check localStorage first for instant loading
+      const cached = localStorage.getItem(`km_profile_${user.uid}`) || localStorage.getItem("krishimitra_user_profile");
+      if (cached) {
+        try {
+          currentUserProfile = JSON.parse(cached);
           applyUserProfileToUI();
           showAuthLoading(false);
-          // Existing user — go straight to chat
+          showChatView();
+          return;
+        } catch (_) {}
+      }
+
+      // Check if profile exists in Firestore with a 3s timeout
+      try {
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 3000));
+        const profilePromise = firebaseDB.collection("users").doc(user.uid).get();
+        const profileDoc = await Promise.race([profilePromise, timeoutPromise]);
+
+        if (profileDoc && profileDoc.exists) {
+          currentUserProfile = profileDoc.data();
+          localStorage.setItem(`km_profile_${user.uid}`, JSON.stringify(currentUserProfile));
+          applyUserProfileToUI();
+          showAuthLoading(false);
           showChatView();
         } else {
-          // New user — needs onboarding profile
+          // New user without profile
           showAuthLoading(false);
           showOnboardingStep();
         }
       } catch (err) {
-        console.error("[Auth] Firestore profile fetch error:", err);
+        console.warn("[Auth] Firestore profile fetch:", err);
         showAuthLoading(false);
-        showOnboardingStep(); // Fallback: show onboarding
+        showOnboardingStep();
       }
     } else {
-      // Not logged in
       currentUser = null;
       currentUserProfile = null;
       showAuthLoading(false);
@@ -105,13 +126,12 @@ function showAuthLoading(show) {
 
 /** Show the credentials login/signup modal */
 function showLoginStep() {
-  document.getElementById("landing-view").classList.add("hidden");
-  document.getElementById("chat-view").classList.add("hidden");
-
   const modal = document.getElementById("auth-modal");
-  modal.classList.remove("hidden");
-  document.getElementById("auth-step-credentials").classList.remove("hidden");
-  document.getElementById("auth-step-onboarding").classList.add("hidden");
+  if (modal) modal.classList.remove("hidden");
+  const creds = document.getElementById("auth-step-credentials");
+  if (creds) creds.classList.remove("hidden");
+  const onboard = document.getElementById("auth-step-onboarding");
+  if (onboard) onboard.classList.add("hidden");
 
   clearAuthError();
   const emailInput = document.getElementById("auth-email");
@@ -120,24 +140,21 @@ function showLoginStep() {
 
 /** Close the auth modal and return to landing view */
 function closeAuthModal() {
-  if (currentUser && currentUserProfile) {
-    showChatView();
-  } else {
-    const modal = document.getElementById("auth-modal");
-    if (modal) modal.classList.add("hidden");
+  const modal = document.getElementById("auth-modal");
+  if (modal) modal.classList.add("hidden");
+  if (!currentUser || !currentUserProfile) {
     showLandingView();
   }
 }
 
 /** Show the onboarding form step */
 function showOnboardingStep() {
-  document.getElementById("landing-view").classList.add("hidden");
-  document.getElementById("chat-view").classList.add("hidden");
-
   const modal = document.getElementById("auth-modal");
-  modal.classList.remove("hidden");
-  document.getElementById("auth-step-credentials").classList.add("hidden");
-  document.getElementById("auth-step-onboarding").classList.remove("hidden");
+  if (modal) modal.classList.remove("hidden");
+  const creds = document.getElementById("auth-step-credentials");
+  if (creds) creds.classList.add("hidden");
+  const onboard = document.getElementById("auth-step-onboarding");
+  if (onboard) onboard.classList.remove("hidden");
   clearAuthError();
 
   // Pre-fill name if available from Google or Email
@@ -420,10 +437,13 @@ async function handleOnboardingSubmit() {
     return;
   }
 
+  // If user is not authenticated with Firebase yet, create a local session
   if (!currentUser) {
-    showAuthError("Authentication session lost. Please log in again.");
-    setTimeout(() => showLoginStep(), 2000);
-    return;
+    currentUser = {
+      uid: "farmer_" + Math.random().toString(36).substring(2, 9),
+      displayName: name,
+      email: ""
+    };
   }
 
   const btn = document.getElementById("btn-complete-onboarding");
@@ -436,25 +456,40 @@ async function handleOnboardingSubmit() {
     district: district,
     language: language,
     email: currentUser.email || "",
-    authProvider: currentUser.providerData[0]?.providerId || "password",
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    authProvider: currentUser.providerData && currentUser.providerData[0] ? currentUser.providerData[0].providerId : "email",
+    updatedAt: new Date().toISOString()
   };
 
+  // 1. Always save to localStorage so the user is NEVER blocked
   try {
-    await firebaseDB.collection("users").doc(currentUser.uid).set(profileData);
-    currentUserProfile = profileData;
-    applyUserProfileToUI();
-    
-    // Close auth modal and go to chat
-    document.getElementById("auth-modal").classList.add("hidden");
-    showChatView();
-  } catch (err) {
-    console.error("[Auth] Profile save error:", err);
-    showAuthError("Failed to save your profile. Please try again.");
-  } finally {
-    setBtnLoading(btn, false, "Start Using KrishiMitra AI");
+    localStorage.setItem("krishimitra_user_profile", JSON.stringify(profileData));
+    if (currentUser && currentUser.uid) {
+      localStorage.setItem(`km_profile_${currentUser.uid}`, JSON.stringify(profileData));
+    }
+  } catch (e) {
+    console.warn("[Auth] LocalStorage save error:", e);
   }
+
+  currentUserProfile = profileData;
+
+  // 2. Best-effort Firestore sync in background
+  if (firebaseDB && currentUser && currentUser.uid && !currentUser.uid.startsWith("farmer_")) {
+    try {
+      firebaseDB.collection("users").doc(currentUser.uid).set(profileData).catch(err => {
+        console.warn("[Auth] Cloud Firestore sync note:", err);
+      });
+    } catch (err) {
+      console.warn("[Auth] Firestore sync skipped:", err);
+    }
+  }
+
+  // 3. Immediately apply to UI and enter chat!
+  applyUserProfileToUI();
+  setBtnLoading(btn, false, "Start Using KrishiMitra AI");
+  
+  const modal = document.getElementById("auth-modal");
+  if (modal) modal.classList.add("hidden");
+  showChatView();
 }
 
 // ── Logout ──────────────────────────────────────────────────────────────────
