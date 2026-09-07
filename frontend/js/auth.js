@@ -194,6 +194,13 @@ async function handleSendOTP() {
   setBtnLoading(btn, true, "Sending OTP...");
   clearAuthError();
 
+  // Check if Firebase config is still using placeholders
+  if (typeof firebaseConfig !== "undefined" && (firebaseConfig.apiKey.includes("DummyKey") || firebaseConfig.projectId.includes("your-project-id"))) {
+    showAuthError("Firebase is not configured yet. Please add your Firebase project credentials to frontend/js/firebase-config.js.");
+    setBtnLoading(btn, false, "Continue with OTP");
+    return;
+  }
+
   try {
     if (!recaptchaVerifier) {
       initRecaptcha();
@@ -208,10 +215,12 @@ async function handleSendOTP() {
     showOTPStep();
   } catch (err) {
     console.error("[Auth] OTP send error:", err);
-    let msg = "Failed to send OTP. Please try again.";
+    let msg = "Failed to send OTP: " + (err.message || "Please check your network and Firebase configuration.");
     if (err.code === "auth/invalid-phone-number") msg = "Invalid phone number format. Please check and try again.";
     if (err.code === "auth/too-many-requests") msg = "Too many OTP requests. Please wait a few minutes and try again.";
     if (err.code === "auth/captcha-check-failed") msg = "Security verification failed. Please refresh the page and try again.";
+    if (err.code === "auth/api-key-not-valid") msg = "Firebase API Key is invalid. Please check your credentials in frontend/js/firebase-config.js.";
+    if (err.code === "auth/unauthorized-domain") msg = "This domain is not authorized in Firebase Console. Add '" + window.location.hostname + "' under Firebase Auth → Settings → Authorized Domains.";
     showAuthError(msg);
 
     // Reset reCAPTCHA on error
