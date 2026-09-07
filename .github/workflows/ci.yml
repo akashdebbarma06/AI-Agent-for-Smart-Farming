@@ -10,9 +10,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
     - name: Install dependencies
@@ -22,7 +22,7 @@ jobs:
         pip install pytest pytest-cov
     - name: Run tests
       run: |
-        # Use dummy env vars for tests
+        export PYTHONPATH=.
         export IBM_WATSONX_API_KEY=dummy
         export IBM_WATSONX_PROJECT_ID=dummy
         pytest backend/tests/ -v
