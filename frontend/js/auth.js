@@ -2,23 +2,22 @@
  * KrishiMitra AI — Authentication & Onboarding Controller
  * 
  * Handles:
- *  - Firebase Phone OTP authentication (send, verify, resend)
+ *  - Google Sign-In (Gmail authentication via Firebase Auth GoogleAuthProvider)
+ *  - Email & Password authentication (Sign In & Account Creation)
+ *  - Password reset via email
  *  - New user onboarding (name, age, state, district, language, T&C)
- *  - Session persistence via Firebase Auth state
- *  - User profile storage in Firestore
- *  - Auth guards for chat access
+ *  - Session persistence via Firebase onAuthStateChanged
+ *  - User profile storage in Firestore (`users/{uid}`)
+ *  - Auth guards for AI chat access
  *  - Logout functionality
  * 
- * Dependencies: firebase-config.js must be loaded first (provides firebaseAuth, firebaseDB)
+ * Dependencies: firebase-config.js must be loaded first (provides ensureFirebaseInitialized, firebaseAuth, firebaseDB)
  */
 
 // ── Auth State ──────────────────────────────────────────────────────────────
 let currentUser = null;        // Firebase user object
-let currentUserProfile = null; // Firestore profile doc { name, age, state, district, language }
-let confirmationResult = null; // Firebase OTP confirmation handle
-let recaptchaVerifier = null;  // Invisible reCAPTCHA
-let otpResendTimer = null;     // Interval handle for countdown
-let otpResendSeconds = 0;      // Countdown seconds remaining
+let currentUserProfile = null; // Firestore profile doc { name, age, state, district, language, email }
+let authMode = "login";        // "login" | "signup"
 
 // Indian states and their districts (subset — covers major agricultural states)
 const INDIAN_STATES_DISTRICTS = {
@@ -50,7 +49,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   populateStateDropdown();
   const ready = await ensureFirebaseInitialized();
   if (ready && firebaseAuth) {
-    initRecaptcha();
     setupAuthStateListener();
   } else {
     showAuthLoading(false);
@@ -58,29 +56,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /**
- * Set up invisible reCAPTCHA verifier for Firebase Phone Auth.
- */
-function initRecaptcha() {
-  try {
-    recaptchaVerifier = new firebase.auth.RecaptchaVerifier("recaptcha-container", {
-      size: "invisible",
-      callback: () => { /* reCAPTCHA solved — will proceed with sendOTP */ },
-      "expired-callback": () => {
-        showAuthError("Security check expired. Please try again.");
-        recaptchaVerifier.render().then(widgetId => {
-          grecaptcha.reset(widgetId);
-        });
-      }
-    });
-    recaptchaVerifier.render();
-  } catch (e) {
-    console.error("[Auth] reCAPTCHA init error:", e);
-  }
-}
-
-/**
- * Firebase auth state listener — runs on every page load and auth change.
- * This is the SINGLE source of truth for routing decisions.
+ * Firebase auth state listener — runs on page load and auth changes.
+ * Single source of truth for routing decisions.
  */
 function setupAuthStateListener() {
   showAuthLoading(true);
@@ -88,7 +65,7 @@ function setupAuthStateListener() {
   firebaseAuth.onAuthStateChanged(async (user) => {
     if (user) {
       currentUser = user;
-      console.log("[Auth] User signed in:", user.phoneNumber);
+      console.log("[Auth] User signed in:", user.email || user.uid);
 
       // Check if profile exists in Firestore
       try {
@@ -97,17 +74,17 @@ function setupAuthStateListener() {
           currentUserProfile = profileDoc.data();
           applyUserProfileToUI();
           showAuthLoading(false);
-          // Existing user — go to chat
+          // Existing user — go straight to chat
           showChatView();
         } else {
-          // New user — needs onboarding
+          // New user — needs onboarding profile
           showAuthLoading(false);
           showOnboardingStep();
         }
       } catch (err) {
         console.error("[Auth] Firestore profile fetch error:", err);
         showAuthLoading(false);
-        showOnboardingStep(); // Fallback: show onboarding if Firestore fails
+        showOnboardingStep(); // Fallback: show onboarding
       }
     } else {
       // Not logged in
@@ -126,35 +103,30 @@ function showAuthLoading(show) {
   if (el) el.classList.toggle("hidden", !show);
 }
 
-/** Show the phone number input step */
+/** Show the credentials login/signup modal */
 function showLoginStep() {
   document.getElementById("landing-view").classList.add("hidden");
   document.getElementById("chat-view").classList.add("hidden");
 
   const modal = document.getElementById("auth-modal");
   modal.classList.remove("hidden");
-  document.getElementById("auth-step-phone").classList.remove("hidden");
-  document.getElementById("auth-step-otp").classList.add("hidden");
+  document.getElementById("auth-step-credentials").classList.remove("hidden");
   document.getElementById("auth-step-onboarding").classList.add("hidden");
 
   clearAuthError();
-  const phoneInput = document.getElementById("farmer-phone-input");
-  if (phoneInput) { phoneInput.value = ""; phoneInput.focus(); }
+  const emailInput = document.getElementById("auth-email");
+  if (emailInput) emailInput.focus();
 }
 
-/** Show the OTP verification step */
-function showOTPStep() {
-  document.getElementById("auth-step-phone").classList.add("hidden");
-  document.getElementById("auth-step-otp").classList.remove("hidden");
-  document.getElementById("auth-step-onboarding").classList.add("hidden");
-  clearAuthError();
-
-  // Focus first OTP digit
-  const firstDigit = document.getElementById("otp-digit-1");
-  if (firstDigit) firstDigit.focus();
-
-  // Start resend countdown (30 seconds)
-  startResendCountdown(30);
+/** Close the auth modal and return to landing view */
+function closeAuthModal() {
+  if (currentUser && currentUserProfile) {
+    showChatView();
+  } else {
+    const modal = document.getElementById("auth-modal");
+    if (modal) modal.classList.add("hidden");
+    showLandingView();
+  }
 }
 
 /** Show the onboarding form step */
@@ -164,13 +136,23 @@ function showOnboardingStep() {
 
   const modal = document.getElementById("auth-modal");
   modal.classList.remove("hidden");
-  document.getElementById("auth-step-phone").classList.add("hidden");
-  document.getElementById("auth-step-otp").classList.add("hidden");
+  document.getElementById("auth-step-credentials").classList.add("hidden");
   document.getElementById("auth-step-onboarding").classList.remove("hidden");
   clearAuthError();
+
+  // Pre-fill name if available from Google or Email
+  const nameInput = document.getElementById("onboard-name");
+  if (nameInput && !nameInput.value) {
+    if (currentUser && currentUser.displayName) {
+      nameInput.value = currentUser.displayName;
+    } else if (currentUser && currentUser.email) {
+      const emailPrefix = currentUser.email.split("@")[0].replace(/[._-]/g, " ");
+      nameInput.value = emailPrefix.replace(/\b\w/g, l => l.toUpperCase());
+    }
+  }
 }
 
-/** Auth guard — called by all "Get Started" / chat buttons */
+/** Auth guard — called by "Get Started" / chat buttons */
 function authGuardShowChat() {
   if (currentUser && currentUserProfile) {
     showChatView();
@@ -181,238 +163,225 @@ function authGuardShowChat() {
   }
 }
 
-// ── Phone Number Submission ─────────────────────────────────────────────────
+function showLandingView() {
+  const modal = document.getElementById("auth-modal");
+  if (modal) modal.classList.add("hidden");
+  const landing = document.getElementById("landing-view");
+  if (landing) landing.classList.remove("hidden");
+  const chat = document.getElementById("chat-view");
+  if (chat) chat.classList.add("hidden");
+}
 
-async function handleSendOTP() {
-  const phoneInput = document.getElementById("farmer-phone-input");
-  const rawPhone = phoneInput ? phoneInput.value.trim() : "";
+function showChatView() {
+  const modal = document.getElementById("auth-modal");
+  if (modal) modal.classList.add("hidden");
+  const landing = document.getElementById("landing-view");
+  if (landing) landing.classList.add("hidden");
+  const chat = document.getElementById("chat-view");
+  if (chat) chat.classList.remove("hidden");
+}
 
-  // Validate: must be 10 digits
-  const cleaned = rawPhone.replace(/\D/g, "");
-  if (cleaned.length !== 10) {
-    showAuthError("Please enter a valid 10-digit mobile number.");
+// ── Google Authentication (Gmail) ──────────────────────────────────────────
+
+async function handleGoogleAuth() {
+  clearAuthError();
+  const btn = document.getElementById("btn-google-auth");
+  setBtnLoading(btn, true, "Connecting to Google...");
+
+  const isReady = await ensureFirebaseInitialized();
+  if (!isReady || !firebaseAuth) {
+    showAuthError("Firebase authentication is not configured yet. Please check server configuration.");
+    setBtnLoading(btn, false, "Continue with Google");
     return;
   }
 
-  const fullPhone = "+91" + cleaned;
-  const btn = document.getElementById("btn-send-otp");
-  setBtnLoading(btn, true, "Sending OTP...");
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope("email");
+    provider.addScope("profile");
+
+    // Attempt popup login
+    await firebaseAuth.signInWithPopup(provider);
+    // onAuthStateChanged will handle routing to chat or onboarding
+  } catch (err) {
+    console.error("[Auth] Google Sign-In error:", err);
+    let msg = "Google Sign-In failed: " + (err.message || "Please try again.");
+    if (err.code === "auth/popup-blocked") {
+      msg = "Popup was blocked by your browser. Please allow popups for this site or use email login.";
+    } else if (err.code === "auth/popup-closed-by-user") {
+      msg = "Sign-in cancelled. Please try again.";
+    } else if (err.code === "auth/unauthorized-domain") {
+      msg = "This domain is not authorized in Firebase Console. Add '" + window.location.hostname + "' under Firebase Auth → Settings → Authorized Domains.";
+    }
+    showAuthError(msg);
+  } finally {
+    setBtnLoading(btn, false, "Continue with Google");
+  }
+}
+
+// ── Email & Password Authentication ────────────────────────────────────────
+
+function toggleAuthMode() {
   clearAuthError();
+  authMode = (authMode === "login") ? "signup" : "login";
+
+  const titleEl = document.getElementById("auth-modal-title");
+  const subTitleEl = document.getElementById("auth-modal-subtitle");
+  const submitTextEl = document.getElementById("btn-email-auth-text");
+  const promptEl = document.getElementById("auth-toggle-prompt");
+  const toggleBtnEl = document.getElementById("auth-toggle-btn");
+  const forgotRowEl = document.getElementById("auth-forgot-link");
+
+  if (authMode === "signup") {
+    if (titleEl) titleEl.textContent = "Create Account";
+    if (subTitleEl) subTitleEl.textContent = "Join KrishiMitra to get personalized farm guidance";
+    if (submitTextEl) submitTextEl.textContent = "Create Account";
+    if (promptEl) promptEl.textContent = "Already have an account?";
+    if (toggleBtnEl) toggleBtnEl.textContent = "Sign In";
+    if (forgotRowEl) forgotRowEl.classList.add("hidden");
+  } else {
+    if (titleEl) titleEl.textContent = "Welcome to KrishiMitra";
+    if (subTitleEl) subTitleEl.textContent = "Sign in with your Google account or email";
+    if (submitTextEl) submitTextEl.textContent = "Sign In";
+    if (promptEl) promptEl.textContent = "Don't have an account?";
+    if (toggleBtnEl) toggleBtnEl.textContent = "Sign Up";
+    if (forgotRowEl) forgotRowEl.classList.remove("hidden");
+  }
+}
+
+function togglePasswordVisibility() {
+  const pwdInput = document.getElementById("auth-password");
+  const icon = document.getElementById("password-toggle-icon");
+  if (!pwdInput) return;
+
+  if (pwdInput.type === "password") {
+    pwdInput.type = "text";
+    if (icon) icon.textContent = "visibility_off";
+  } else {
+    pwdInput.type = "password";
+    if (icon) icon.textContent = "visibility";
+  }
+}
+
+async function handleEmailPasswordAuth() {
+  clearAuthError();
+
+  const emailInput = document.getElementById("auth-email");
+  const pwdInput = document.getElementById("auth-password");
+
+  const email = emailInput ? emailInput.value.trim() : "";
+  const password = pwdInput ? pwdInput.value : "";
+
+  // Basic validation
+  if (!email || !email.includes("@") || !email.includes(".")) {
+    showAuthError("Please enter a valid email address.");
+    if (emailInput) emailInput.focus();
+    return;
+  }
+
+  if (!password || password.length < 6) {
+    showAuthError("Password must be at least 6 characters long.");
+    if (pwdInput) pwdInput.focus();
+    return;
+  }
+
+  const btn = document.getElementById("btn-email-auth");
+  const actionText = (authMode === "signup") ? "Creating account..." : "Signing in...";
+  setBtnLoading(btn, true, actionText);
 
   const isReady = await ensureFirebaseInitialized();
   if (!isReady || !firebaseAuth) {
     showAuthError("Firebase authentication is not configured yet. Please configure Firebase credentials in your server environment variables.");
-    setBtnLoading(btn, false, "Continue with OTP");
+    setBtnLoading(btn, false, authMode === "signup" ? "Create Account" : "Sign In");
     return;
   }
 
   try {
-    if (!recaptchaVerifier) {
-      initRecaptcha();
-    }
-    confirmationResult = await firebaseAuth.signInWithPhoneNumber(fullPhone, recaptchaVerifier);
-    console.log("[Auth] OTP sent to", fullPhone);
-
-    // Update UI to show which number the OTP was sent to
-    const otpPhoneDisplay = document.getElementById("otp-phone-display");
-    if (otpPhoneDisplay) otpPhoneDisplay.textContent = "+91 " + cleaned.replace(/(\d{5})(\d{5})/, "$1 $2");
-
-    showOTPStep();
-  } catch (err) {
-    console.error("[Auth] OTP send error:", err);
-    let msg = "Failed to send OTP: " + (err.message || "Please check your network and Firebase configuration.");
-    if (err.code === "auth/invalid-phone-number") msg = "Invalid phone number format. Please check and try again.";
-    if (err.code === "auth/too-many-requests") msg = "Too many OTP requests. Please wait a few minutes and try again.";
-    if (err.code === "auth/captcha-check-failed") msg = "Security verification failed. Please refresh the page and try again.";
-    if (err.code === "auth/api-key-not-valid") msg = "Firebase API Key is invalid. Please check your credentials in frontend/js/firebase-config.js.";
-    if (err.code === "auth/unauthorized-domain") msg = "This domain is not authorized in Firebase Console. Add '" + window.location.hostname + "' under Firebase Auth → Settings → Authorized Domains.";
-    showAuthError(msg);
-
-    // Reset reCAPTCHA on error
-    try { recaptchaVerifier.render().then(wid => grecaptcha.reset(wid)); } catch (_) {}
-  } finally {
-    setBtnLoading(btn, false, "Continue with OTP");
-  }
-}
-
-// ── OTP Verification ────────────────────────────────────────────────────────
-
-async function handleVerifyOTP() {
-  const otp = getOTPValue();
-  if (otp.length !== 6) {
-    showAuthError("Please enter the complete 6-digit OTP.");
-    return;
-  }
-
-  if (!confirmationResult) {
-    showAuthError("OTP session expired. Please request a new OTP.");
-    return;
-  }
-
-  const btn = document.getElementById("btn-verify-otp");
-  setBtnLoading(btn, true, "Verifying...");
-  clearAuthError();
-
-  try {
-    await confirmationResult.confirm(otp);
-    // Firebase onAuthStateChanged will handle the rest (profile check → chat or onboarding)
-  } catch (err) {
-    console.error("[Auth] OTP verify error:", err);
-    let msg = "Invalid OTP. Please check and try again.";
-    if (err.code === "auth/code-expired") msg = "OTP has expired. Please request a new one.";
-    if (err.code === "auth/invalid-verification-code") msg = "Incorrect OTP code. Please re-check.";
-    showAuthError(msg);
-    clearOTPInputs();
-  } finally {
-    setBtnLoading(btn, false, "Verify & Continue");
-  }
-}
-
-function getOTPValue() {
-  let otp = "";
-  for (let i = 1; i <= 6; i++) {
-    const el = document.getElementById("otp-digit-" + i);
-    otp += el ? el.value : "";
-  }
-  return otp;
-}
-
-function clearOTPInputs() {
-  for (let i = 1; i <= 6; i++) {
-    const el = document.getElementById("otp-digit-" + i);
-    if (el) el.value = "";
-  }
-  const first = document.getElementById("otp-digit-1");
-  if (first) first.focus();
-}
-
-/** Auto-advance OTP digits and handle backspace */
-function handleOTPInput(el, index) {
-  const val = el.value.replace(/\D/g, "");
-  el.value = val.slice(-1); // Keep only last digit
-
-  if (val && index < 6) {
-    const next = document.getElementById("otp-digit-" + (index + 1));
-    if (next) next.focus();
-  }
-
-  // Auto-submit when all 6 digits are filled
-  if (index === 6 && val) {
-    const fullOtp = getOTPValue();
-    if (fullOtp.length === 6) handleVerifyOTP();
-  }
-}
-
-function handleOTPKeydown(e, index) {
-  if (e.key === "Backspace" && !e.target.value && index > 1) {
-    const prev = document.getElementById("otp-digit-" + (index - 1));
-    if (prev) { prev.value = ""; prev.focus(); }
-  }
-  if (e.key === "Enter") {
-    handleVerifyOTP();
-  }
-}
-
-/** Handle paste of full OTP code */
-function handleOTPPaste(e) {
-  e.preventDefault();
-  const pasted = (e.clipboardData || window.clipboardData).getData("text").replace(/\D/g, "").slice(0, 6);
-  for (let i = 0; i < pasted.length; i++) {
-    const el = document.getElementById("otp-digit-" + (i + 1));
-    if (el) el.value = pasted[i];
-  }
-  if (pasted.length === 6) handleVerifyOTP();
-}
-
-// ── Resend OTP ──────────────────────────────────────────────────────────────
-
-function startResendCountdown(seconds) {
-  otpResendSeconds = seconds;
-  const resendBtn = document.getElementById("btn-resend-otp");
-  const timerEl = document.getElementById("resend-timer");
-  if (resendBtn) resendBtn.disabled = true;
-  if (resendBtn) resendBtn.classList.add("opacity-50", "cursor-not-allowed");
-
-  updateResendTimerDisplay();
-
-  if (otpResendTimer) clearInterval(otpResendTimer);
-  otpResendTimer = setInterval(() => {
-    otpResendSeconds--;
-    if (otpResendSeconds <= 0) {
-      clearInterval(otpResendTimer);
-      if (resendBtn) { resendBtn.disabled = false; resendBtn.classList.remove("opacity-50", "cursor-not-allowed"); }
-      if (timerEl) timerEl.textContent = "";
+    if (authMode === "signup") {
+      await firebaseAuth.createUserWithEmailAndPassword(email, password);
+      // onAuthStateChanged will detect new user and route to onboarding
     } else {
-      updateResendTimerDisplay();
+      await firebaseAuth.signInWithEmailAndPassword(email, password);
+      // onAuthStateChanged will verify profile and route to chat
     }
-  }, 1000);
+  } catch (err) {
+    console.error("[Auth] Email auth error:", err);
+    let msg = err.message || "Authentication failed. Please try again.";
+    if (err.code === "auth/invalid-email") msg = "Invalid email format. Please check your email.";
+    if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
+      msg = "Incorrect email or password. Please try again.";
+    }
+    if (err.code === "auth/email-already-in-use") {
+      msg = "An account with this email already exists. Please switch to Sign In.";
+    }
+    if (err.code === "auth/weak-password") {
+      msg = "Password is too weak. Please use at least 6 characters.";
+    }
+    showAuthError(msg);
+  } finally {
+    setBtnLoading(btn, false, authMode === "signup" ? "Create Account" : "Sign In");
+  }
 }
 
-function updateResendTimerDisplay() {
-  const timerEl = document.getElementById("resend-timer");
-  if (timerEl) timerEl.textContent = `(${otpResendSeconds}s)`;
-}
+async function handleForgotPassword() {
+  clearAuthError();
+  const emailInput = document.getElementById("auth-email");
+  const email = emailInput ? emailInput.value.trim() : "";
 
-async function handleResendOTP() {
-  const phoneInput = document.getElementById("farmer-phone-input");
-  const rawPhone = phoneInput ? phoneInput.value.trim().replace(/\D/g, "") : "";
-  if (rawPhone.length !== 10) {
-    showAuthError("Phone number lost. Please go back and re-enter.");
+  if (!email || !email.includes("@")) {
+    showAuthError("Please enter your email address in the field above to reset your password.");
+    if (emailInput) emailInput.focus();
     return;
   }
 
-  clearAuthError();
-  clearOTPInputs();
+  const isReady = await ensureFirebaseInitialized();
+  if (!isReady || !firebaseAuth) {
+    showAuthError("Firebase authentication is not configured yet.");
+    return;
+  }
 
   try {
-    if (!recaptchaVerifier) initRecaptcha();
-    confirmationResult = await firebaseAuth.signInWithPhoneNumber("+91" + rawPhone, recaptchaVerifier);
-    showAuthSuccess("New OTP sent successfully!");
-    startResendCountdown(30);
+    await firebaseAuth.sendPasswordResetEmail(email);
+    showAuthSuccess(`Password reset email sent to ${email}. Please check your inbox.`);
   } catch (err) {
-    console.error("[Auth] Resend OTP error:", err);
-    if (err.code === "auth/too-many-requests") {
-      showAuthError("Too many requests. Please wait a few minutes.");
-    } else {
-      showAuthError("Failed to resend OTP. Please try again.");
-    }
+    console.error("[Auth] Password reset error:", err);
+    let msg = "Could not send reset email: " + err.message;
+    if (err.code === "auth/user-not-found") msg = "No account found with this email address.";
+    showAuthError(msg);
   }
-}
-
-function handleChangeNumber() {
-  if (otpResendTimer) clearInterval(otpResendTimer);
-  confirmationResult = null;
-  showLoginStep();
 }
 
 // ── Onboarding Form ─────────────────────────────────────────────────────────
 
 function populateStateDropdown() {
-  const select = document.getElementById("onboard-state");
-  if (!select) return;
+  const stateSelect = document.getElementById("onboard-state");
+  if (!stateSelect) return;
 
-  select.innerHTML = '<option value="">Select your state</option>';
+  stateSelect.innerHTML = '<option value="">Select your state</option>';
   Object.keys(INDIAN_STATES_DISTRICTS).sort().forEach(state => {
     const opt = document.createElement("option");
     opt.value = state;
     opt.textContent = state;
-    select.appendChild(opt);
+    stateSelect.appendChild(opt);
   });
 }
 
 function onStateChange() {
-  const stateVal = document.getElementById("onboard-state").value;
+  const stateSelect = document.getElementById("onboard-state");
   const districtSelect = document.getElementById("onboard-district");
+  if (!stateSelect || !districtSelect) return;
+
+  const selectedState = stateSelect.value;
   districtSelect.innerHTML = '<option value="">Select your district</option>';
 
-  if (stateVal && INDIAN_STATES_DISTRICTS[stateVal]) {
-    INDIAN_STATES_DISTRICTS[stateVal].forEach(d => {
+  if (selectedState && INDIAN_STATES_DISTRICTS[selectedState]) {
+    districtSelect.disabled = false;
+    INDIAN_STATES_DISTRICTS[selectedState].forEach(dist => {
       const opt = document.createElement("option");
-      opt.value = d;
-      opt.textContent = d;
+      opt.value = dist;
+      opt.textContent = dist;
       districtSelect.appendChild(opt);
     });
-    districtSelect.disabled = false;
   } else {
     districtSelect.disabled = true;
   }
@@ -421,12 +390,12 @@ function onStateChange() {
 async function handleOnboardingSubmit() {
   clearAuthError();
 
-  const name = document.getElementById("onboard-name").value.trim();
-  const ageStr = document.getElementById("onboard-age").value.trim();
-  const state = document.getElementById("onboard-state").value;
-  const district = document.getElementById("onboard-district").value;
-  const language = document.getElementById("onboard-language").value || "en";
-  const termsChecked = document.getElementById("onboard-terms").checked;
+  const name = document.getElementById("onboard-name")?.value.trim();
+  const ageStr = document.getElementById("onboard-age")?.value.trim();
+  const state = document.getElementById("onboard-state")?.value;
+  const district = document.getElementById("onboard-district")?.value;
+  const language = document.getElementById("onboard-language")?.value || "en";
+  const termsChecked = document.getElementById("onboard-terms")?.checked;
 
   // Validation
   if (!name || name.length < 2) {
@@ -466,7 +435,8 @@ async function handleOnboardingSubmit() {
     state: state,
     district: district,
     language: language,
-    phone: currentUser.phoneNumber || "",
+    email: currentUser.email || "",
+    authProvider: currentUser.providerData[0]?.providerId || "password",
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };
@@ -494,7 +464,7 @@ async function handleLogout() {
     await firebaseAuth.signOut();
     currentUser = null;
     currentUserProfile = null;
-    // onAuthStateChanged listener will handle the routing to landing view
+    showLandingView();
   } catch (err) {
     console.error("[Auth] Logout error:", err);
   }
@@ -536,47 +506,54 @@ function applyUserProfileToUI() {
   }
 }
 
-function showAuthError(msg) {
-  const el = document.getElementById("auth-error-message");
-  if (el) { el.textContent = msg; el.classList.remove("hidden"); }
-}
-
-function showAuthSuccess(msg) {
-  const el = document.getElementById("auth-success-message");
-  if (el) { el.textContent = msg; el.classList.remove("hidden"); }
-  setTimeout(() => { if (el) el.classList.add("hidden"); }, 3000);
+function showAuthError(message) {
+  const errBox = document.getElementById("auth-error-message");
+  if (!errBox) return;
+  errBox.innerHTML = `<span class="material-symbols-outlined text-[16px] flex-shrink-0 mt-0.5">error</span><span>${escapeHtml(message)}</span>`;
+  errBox.classList.remove("hidden");
+  const successBox = document.getElementById("auth-success-message");
+  if (successBox) successBox.classList.add("hidden");
 }
 
 function clearAuthError() {
-  const errEl = document.getElementById("auth-error-message");
-  const sucEl = document.getElementById("auth-success-message");
-  if (errEl) errEl.classList.add("hidden");
-  if (sucEl) sucEl.classList.add("hidden");
+  const errBox = document.getElementById("auth-error-message");
+  if (errBox) {
+    errBox.innerHTML = "";
+    errBox.classList.add("hidden");
+  }
+  const successBox = document.getElementById("auth-success-message");
+  if (successBox) {
+    successBox.innerHTML = "";
+    successBox.classList.add("hidden");
+  }
+}
+
+function showAuthSuccess(message) {
+  const successBox = document.getElementById("auth-success-message");
+  if (!successBox) return;
+  successBox.innerHTML = `<span class="material-symbols-outlined text-[16px] flex-shrink-0 mt-0.5">check_circle</span><span>${escapeHtml(message)}</span>`;
+  successBox.classList.remove("hidden");
+  const errBox = document.getElementById("auth-error-message");
+  if (errBox) errBox.classList.add("hidden");
 }
 
 function setBtnLoading(btn, loading, text) {
   if (!btn) return;
   btn.disabled = loading;
-  const span = btn.querySelector("span:first-child") || btn;
   if (loading) {
-    btn.classList.add("opacity-70", "cursor-not-allowed");
-    span.textContent = text || "Loading...";
+    btn.dataset.origHtml = btn.innerHTML;
+    btn.innerHTML = `<div class="auth-spinner !w-4 !h-4 !border-2"></div><span>${text}</span>`;
+    btn.classList.add("opacity-80", "cursor-not-allowed");
   } else {
-    btn.classList.remove("opacity-70", "cursor-not-allowed");
-    span.textContent = text || "Continue";
+    if (btn.dataset.origHtml) {
+      btn.innerHTML = btn.dataset.origHtml;
+    }
+    btn.classList.remove("opacity-80", "cursor-not-allowed");
   }
 }
 
-/**
- * Get the Firebase ID token to send with API requests.
- * Returns null if the user is not authenticated.
- */
-async function getAuthToken() {
-  if (!currentUser) return null;
-  try {
-    return await currentUser.getIdToken(/* forceRefresh */ false);
-  } catch (err) {
-    console.error("[Auth] Token fetch error:", err);
-    return null;
-  }
+function escapeHtml(text) {
+  if (!text) return "";
+  const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" };
+  return String(text).replace(/[&<>"']/g, m => map[m]);
 }
