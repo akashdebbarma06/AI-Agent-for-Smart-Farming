@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initComposerAutoGrow();
   initVoiceRecognition();
   checkBackendHealth();
-  
+
   // Shortcut key for new consultation (Cmd+K / Ctrl+K)
   document.addEventListener("keydown", (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -131,7 +131,7 @@ function playMockAudio() {
   if (!lbl || lbl.textContent.includes('Playing')) return;
   const original = lbl.textContent;
   lbl.textContent = 'Playing synthesized voice note...';
-  
+
   if ('speechSynthesis' in window) {
     const reasonText = document.getElementById('diag-reasoning')?.textContent || "KrishiMitra agronomic voice advisory.";
     const utterance = new SpeechSynthesisUtterance(reasonText);
@@ -154,12 +154,12 @@ function initComposerAutoGrow() {
 
   [heroInp, dockInp].forEach(tx => {
     if (!tx) return;
-    tx.addEventListener("input", function() {
+    tx.addEventListener("input", function () {
       this.style.height = "auto";
       this.style.height = Math.min(this.scrollHeight, 180) + "px";
     });
 
-    tx.addEventListener("keydown", function(e) {
+    tx.addEventListener("keydown", function (e) {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         if (tx.id === "agroQueryInput") {
@@ -214,7 +214,7 @@ function toggleSidebar() {
 // ── Language Selector ────────────────────────────────────────────────────────
 function changeLanguage(lang) {
   currentLanguage = lang;
-  
+
   // Sync dropdowns
   const landSelect = document.getElementById("landing-lang-select");
   const chatSelect = document.getElementById("chat-lang-select");
@@ -497,7 +497,7 @@ async function processAIQuery(query) {
 
     // Fallback Error Response
     appendParsedAIMessage(
-      `**Connection Error:** Unable to reach the KrishiMitra AI server. Error details: ${err.message}. Please check your internet connection and ensure the backend API is running.`,
+      `**Connection Error:** Unable to reach the KrishiMitra AI server. Error details: ${err.message}. Please check your internet connection.`,
       []
     );
   } finally {
@@ -645,9 +645,9 @@ function appendParsedAIMessage(markdownText, sources) {
       <div class="pt-2 border-t border-outline-subtle/50 flex items-center gap-2 flex-wrap text-[11px] text-on-surface-variant">
         <span class="font-semibold text-primary">Sources:</span>
         ${sources.map(s => {
-          const sourceName = typeof s === 'string' ? s : (s.source || "Unknown");
-          return `<span class="bg-surface-subtle px-2 py-0.5 rounded border border-outline-subtle text-secondary font-medium" title="Score: ${s.score || ''}">${escapeHtml(sourceName)}</span>`;
-        }).join("")}
+      const sourceName = typeof s === 'string' ? s : (s.source || "Unknown");
+      return `<span class="bg-surface-subtle px-2 py-0.5 rounded border border-outline-subtle text-secondary font-medium" title="Score: ${s.score || ''}">${escapeHtml(sourceName)}</span>`;
+    }).join("")}
       </div>
     `;
   }
@@ -692,24 +692,24 @@ function parseMarkdownAgronomy(md) {
   let out = md;
 
   // Highlight 4 standard ICAR sections
-  out = out.replace(/###\s*(Direct Answer|Immediate Action|Answer)/gi, 
+  out = out.replace(/###\s*(Direct Answer|Immediate Action|Answer)/gi,
     `<div class="text-xs font-bold text-primary flex items-center gap-1.5 mt-3 mb-1"><span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>Direct Recommendation</div>`);
 
-  out = out.replace(/###\s*(Why This Matters|Agro Reasoning|Reasoning|Scientific Context)/gi, 
+  out = out.replace(/###\s*(Why This Matters|Agro Reasoning|Reasoning|Scientific Context)/gi,
     `<div class="text-xs font-bold text-primary flex items-center gap-1.5 mt-3 mb-1"><span class="material-symbols-outlined text-[16px] text-secondary">psychology</span>Why This Matters / Agronomic Reasoning</div>`);
 
-  out = out.replace(/###\s*(What To Do|Protocol Steps|Action Protocol|Steps)/gi, 
+  out = out.replace(/###\s*(What To Do|Protocol Steps|Action Protocol|Steps)/gi,
     `<div class="text-xs font-bold text-primary flex items-center gap-1.5 mt-3 mb-1"><span class="material-symbols-outlined text-[16px] text-secondary">format_list_numbered</span>Field Protocol Steps</div>`);
 
-  out = out.replace(/###\s*(Important Caution|Caution|Precaution|Safety & Compliance)/gi, 
+  out = out.replace(/###\s*(Important Caution|Caution|Precaution|Safety & Compliance)/gi,
     `<div class="text-xs font-bold text-amber-900 flex items-center gap-1.5 mt-3 mb-1"><span class="material-symbols-outlined text-[16px] text-amber-700">warning</span>Mandatory Caution & Safety</div>`);
 
   // Bold headings
   out = out.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-primary">$1</strong>');
-  
+
   // Bullet lists
   out = out.replace(/^\s*-\s+(.*)$/gim, '<li class="ml-4 list-disc text-on-surface-variant">$1</li>');
-  
+
   // Numbered lists
   out = out.replace(/^\s*(\d+)\.\s+(.*)$/gim, `
     <div class="flex items-start gap-2.5 p-2.5 my-1.5 rounded-xl bg-surface-subtle border border-outline-subtle/60 text-xs sm:text-sm">
@@ -761,7 +761,7 @@ function shareActiveConsultation() {
       title: "KrishiMitra AI Farm Consultation",
       text: "Science-backed agronomic guidance powered by ICAR research guidelines.",
       url: window.location.href
-    }).catch(() => {});
+    }).catch(() => { });
   } else {
     navigator.clipboard.writeText(window.location.href);
     alert("Consultation link copied to clipboard!");
