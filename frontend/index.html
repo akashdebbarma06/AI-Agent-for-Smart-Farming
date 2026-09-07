@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
-  <title>KrishiMitra AI — Smarter Agricultural Advisory</title>
-  
+  <title>KrishiMitra AI</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-  
+
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -17,581 +17,283 @@
       theme: {
         extend: {
           colors: {
-            "primary": "#012d1d",
-            "primary-container": "#1b4332",
-            "primary-hover": "#09291b",
-            "on-primary": "#ffffff",
-            "on-primary-container": "#86af99",
-            "secondary": "#116c4a",
-            "secondary-container": "#a1f4c8",
-            "on-secondary-container": "#1b724f",
-            "secondary-fixed": "#a1f4c8",
-            "secondary-fixed-dim": "#86d7ad",
-            "surface": "#f9faf5",
-            "surface-subtle": "#f3f4ef",
-            "surface-container": "#edeee9",
-            "surface-container-low": "#f3f4ef",
-            "surface-container-high": "#e7e9e4",
-            "surface-container-highest": "#e2e3de",
-            "surface-container-lowest": "#ffffff",
-            "surface-card": "#ffffff",
-            "sidebar-bg": "#141916",
-            "sidebar-surface": "#1d2320",
-            "sidebar-border": "#27302b",
-            "sidebar-muted": "#8d9992",
-            "outline": "#717973",
-            "outline-subtle": "#e2e3de",
-            "outline-variant": "#c1c8c2",
-            "on-surface": "#1a1c19",
-            "on-surface-variant": "#414844"
+            "km-green-dark": "#0A2518",
+            "km-green-primary": "#0D3C26",
+            "km-green-light": "#E8F0EB",
+            "km-green-accent": "#1A6B46",
+            "km-surface": "#F9F9F6",
+            "km-surface-alt": "#F2F3EC",
+            "km-white": "#FFFFFF",
+            "km-text-main": "#1A1A1A",
+            "km-text-muted": "#666666",
+            "km-border": "#E5E5E5",
+            
+            // App.js legacy class support fallbacks (since app.js injects some dynamic classes)
+            "primary": "#0D3C26",
+            "primary-hover": "#0A2518",
+            "primary-container": "#E8F0EB",
+            "secondary": "#1A6B46",
+            "secondary-container": "#E8F0EB",
+            "surface-card": "#FFFFFF",
+            "surface-subtle": "#F9F9F6",
+            "on-surface": "#1A1A1A",
+            "on-surface-variant": "#666666",
+            "outline-subtle": "#E5E5E5"
           },
           fontFamily: {
-            sans: ["Plus Jakarta Sans", "system-ui", "-apple-system", "sans-serif"],
-            serif: ["Newsreader", "Georgia", "serif"]
+            sans: ["Plus Jakarta Sans", "sans-serif"],
+            serif: ["Newsreader", "serif"],
           },
           boxShadow: {
-            "claude-card": "0 1px 3px rgba(0,0,0,0.03), 0 6px 20px rgba(0,0,0,0.04)",
-            "claude-input": "0 2px 12px rgba(14,57,38,0.04), 0 8px 32px rgba(0,0,0,0.06)",
-            "subtle-elevated": "0 2px 8px -2px rgba(0,0,0,0.05)"
+            "subtle-elevated": "0 2px 8px -2px rgba(0,0,0,0.05)",
+            "claude-card": "0 1px 3px rgba(0,0,0,0.03), 0 6px 20px rgba(0,0,0,0.04)"
           }
         }
       }
     };
   </script>
-  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body { background-color: #F9F9F6; color: #1A1A1A; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes typingBounce {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1.1); opacity: 1; }
+    }
+    .typing-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: #1A6B46;
+      animation: typingBounce 1.2s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  </style>
 </head>
-<body class="bg-surface text-on-surface antialiased selection:bg-secondary/20 selection:text-primary">
+<body class="font-sans antialiased">
 
   <!-- =========================================================================
-       VIEW 1: LANDING & AGRO INTELLIGENCE SYSTEM (FULLY RESPONSIVE)
+       VIEW 1: LANDING PAGE
   ========================================================================== -->
   <div id="landing-view" class="w-full min-h-screen flex flex-col transition-opacity duration-300">
-    
-    <!-- Responsive Top Navigation Bar -->
-    <header class="fixed top-0 w-full z-40 bg-surface/90 backdrop-blur-xl border-b border-outline-subtle/60 shadow-[0_1px_8px_rgba(27,67,50,0.04)]">
-      <div class="h-16 sm:h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4">
-        
+
+    <!-- Top Navigation Bar -->
+    <header class="w-full z-40 bg-km-surface pt-4 pb-4">
+      <div class="max-w-[1200px] mx-auto px-6 flex items-center justify-between">
         <!-- Brand Logo -->
-        <a href="#" onclick="showLandingView(); return false;" class="flex items-center gap-2 sm:gap-2.5 shrink-0 group">
-          <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-primary text-secondary-container flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-            <span class="material-symbols-outlined text-[18px] sm:text-[20px]">potted_plant</span>
+        <a href="#" onclick="showLandingView(); return false;" class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-km-green-primary text-white flex items-center justify-center">
+            <span class="material-symbols-outlined text-[18px]">psychology</span>
           </div>
-          <span class="text-lg sm:text-xl font-bold tracking-tight text-primary">
-            KrishiMitra<span class="text-secondary font-semibold ml-0.5 sm:ml-1">AI</span>
+          <span class="text-lg font-bold text-km-green-primary tracking-tight">
+            KrishiMitra <span class="text-km-green-accent">AI</span>
           </span>
         </a>
 
         <!-- Desktop Nav Links -->
-        <nav class="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-on-surface-variant">
-          <a href="#features-section" class="hover:text-primary transition-colors">Features</a>
-          <a href="#live-preview-section" class="hover:text-primary transition-colors">AI Advisory</a>
-          <a href="#how-it-works-section" class="hover:text-primary transition-colors">How It Works</a>
-          <a href="tel:18001801551" class="hover:text-primary transition-colors flex items-center gap-1">
-            <span class="material-symbols-outlined text-[16px] text-secondary">support_agent</span>
-            <span>KVK Support</span>
-          </a>
+        <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-km-text-muted">
+          <a href="#features" class="hover:text-km-green-primary transition-colors">Features</a>
+          <a href="#advisory" class="hover:text-km-green-primary transition-colors">AI Advisory</a>
+          <a href="#support" class="hover:text-km-green-primary transition-colors">KVK Support</a>
         </nav>
 
         <!-- Right Header Actions -->
-        <div class="flex items-center gap-1.5 sm:gap-3">
-          
-          <!-- Language Selector -->
-          <div class="relative flex items-center text-on-surface-variant">
-            <span class="material-symbols-outlined text-[16px] sm:text-[18px] mr-0.5 sm:mr-1 text-outline">language</span>
-            <select id="landing-lang-select" onchange="changeLanguage(this.value)" class="bg-transparent text-xs font-semibold text-on-surface-variant cursor-pointer focus:outline-none pr-2 sm:pr-3 py-1">
+        <div class="flex items-center gap-4">
+          <div class="relative flex items-center text-sm font-medium text-km-text-muted cursor-pointer hover:text-km-text-main">
+            <span class="material-symbols-outlined text-[16px] mr-1">language</span>
+            <select id="landing-lang-select" onchange="changeLanguage(this.value)" class="bg-transparent text-sm font-medium cursor-pointer appearance-none outline-none pr-4">
               <option value="en">English</option>
               <option value="hi">हिन्दी</option>
               <option value="te">తెలుగు</option>
               <option value="bn">বাংলা</option>
             </select>
+            <span class="material-symbols-outlined text-[16px] absolute right-0 pointer-events-none">expand_more</span>
           </div>
-
-          <!-- Sign In Trigger (Hidden on ultra-small mobile, visible in menu) -->
-          <button onclick="openAuthModal(true)" type="button" class="hidden sm:inline-flex items-center justify-center px-3 py-1.5 text-xs sm:text-sm font-medium text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
-            Sign In
-          </button>
-
-          <!-- Launch AI Assistant Button -->
-          <button onclick="showChatView()" type="button" class="inline-flex items-center justify-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-primary text-on-primary hover:bg-primary-container text-xs sm:text-sm font-semibold transition-all shadow-sm active:scale-95 cursor-pointer">
-            <span class="material-symbols-outlined text-[16px] sm:text-[18px] text-secondary-container">psychology</span>
-            <span class="hidden xs:inline sm:inline">Open AI Assistant</span>
-            <span class="inline xs:hidden sm:hidden">Chat</span>
-          </button>
-
-          <!-- Mobile Hamburger Menu Button -->
-          <button onclick="toggleMobileNav()" type="button" class="md:hidden p-1.5 text-on-surface-variant hover:text-primary rounded-lg cursor-pointer" title="Toggle Navigation">
-            <span class="material-symbols-outlined text-[24px]">menu</span>
+          <a href="#" onclick="openAuthModal(true); return false;" class="hidden sm:block text-sm font-semibold text-km-text-main hover:text-km-green-primary">Sign In</a>
+          <button onclick="showChatView()" type="button" class="px-5 py-2 rounded-full bg-km-green-dark text-white text-sm font-semibold hover:bg-km-green-primary transition-colors">
+            Get Started
           </button>
         </div>
-
-      </div>
-
-      <!-- Mobile Dropdown Menu -->
-      <div id="mobile-nav-menu" class="hidden md:hidden bg-surface-container-lowest border-b border-outline-subtle px-4 py-3 space-y-2 shadow-lg">
-        <a href="#features-section" onclick="toggleMobileNav()" class="block py-2 text-sm font-medium text-on-surface hover:text-primary">Features</a>
-        <a href="#live-preview-section" onclick="toggleMobileNav()" class="block py-2 text-sm font-medium text-on-surface hover:text-primary">AI Advisory</a>
-        <a href="#how-it-works-section" onclick="toggleMobileNav()" class="block py-2 text-sm font-medium text-on-surface hover:text-primary">How It Works</a>
-        <a href="tel:18001801551" class="flex items-center gap-1.5 py-2 text-sm font-medium text-secondary">
-          <span class="material-symbols-outlined text-[18px]">support_agent</span>
-          <span>Call Kisan Helpline (1800-180-1551)</span>
-        </a>
-        <button onclick="openAuthModal(true); toggleMobileNav();" type="button" class="w-full text-left py-2 text-sm font-semibold text-primary border-t border-outline-subtle">
-          Sign In / Register
-        </button>
       </div>
     </header>
 
-    <!-- Main Content Container -->
-    <main class="w-full pt-16 sm:pt-20 bg-surface flex-1">
-      
-      <!-- SECTION 1: HERO SECTION -->
-      <section class="relative w-full overflow-hidden bg-surface py-8 sm:py-14 lg:py-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
+    <!-- Main Content -->
+    <main class="w-full flex-1">
+
+      <!-- SECTION 1: HERO -->
+      <section class="w-full bg-km-surface pt-16 pb-12">
+        <div class="max-w-[1200px] mx-auto px-6">
+          <div class="max-w-2xl space-y-6">
+            <div class="inline-flex items-center gap-2 text-xs font-semibold text-km-text-muted">
+              <span class="w-2 h-2 rounded-full bg-km-green-accent"></span>
+              Powered by IBM watsonx.ai & Granite 3.0
+            </div>
             
-            <!-- Left Hero Text & CTA -->
-            <div class="lg:col-span-7 flex flex-col items-start space-y-4 sm:space-y-5 z-10">
-              
-              <div class="inline-flex items-center gap-2 px-3 py-1 sm:py-1.5 rounded-full bg-surface-container text-on-surface-variant border border-outline-subtle max-w-full">
-                <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-secondary shrink-0 animate-pulse"></span>
-                <span class="text-[11px] sm:text-xs font-semibold tracking-wide text-on-surface-variant truncate">
-                  Powered by IBM watsonx.ai &amp; Granite 3.0
-                </span>
-              </div>
-
-              <h1 class="font-sans text-3xl sm:text-4xl md:text-5xl text-primary tracking-tight font-extrabold leading-tight">
-                Smarter farming with <span class="font-serif italic font-normal text-secondary">AI guidance</span>
-              </h1>
-
-              <p class="text-sm sm:text-base md:text-lg text-on-surface-variant max-w-2xl leading-relaxed">
-                Accurate crop diagnostics, pest control protocols, and weather-smart advisory in your local dialect. Instant, science-backed guidance built for Indian agriculture.
-              </p>
-
-              <!-- Action Buttons (Responsive Stack) -->
-              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto pt-1">
-                <button onclick="showChatView()" type="button" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-on-primary font-semibold text-sm shadow-md hover:bg-primary-container transition-all text-center active:scale-95 cursor-pointer">
-                  <span class="material-symbols-outlined text-[18px] sm:text-[20px] text-secondary-container">psychology</span>
-                  <span>Try AI Assistant</span>
-                </button>
-
-                <button onclick="document.getElementById('video-modal').classList.remove('hidden')" type="button" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-surface-container text-primary font-semibold text-sm hover:bg-surface-container-high transition-all text-center border border-outline-subtle/80 cursor-pointer">
-                  <span class="material-symbols-outlined text-secondary text-[20px]">play_circle</span>
-                  <span>Watch Field Demo</span>
-                </button>
-              </div>
-
-              <!-- Trust Badges -->
-              <div class="flex flex-wrap items-center gap-x-4 sm:gap-x-6 gap-y-2 pt-2 text-on-surface-variant text-xs font-medium">
-                <div class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-secondary text-[16px]">check_circle</span>
-                  <span>CIBRC Compliant</span>
-                </div>
-                <div class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-secondary text-[16px]">check_circle</span>
-                  <span>12 Regional Dialects</span>
-                </div>
-                <div class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-secondary text-[16px]">check_circle</span>
-                  <span>Low-Bandwidth Ready</span>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Right Hero Interactive Visual Card -->
-            <div class="lg:col-span-5 relative flex justify-center w-full">
-              <div class="relative w-full max-w-md rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl bg-surface-container-lowest border border-outline-subtle p-4 sm:p-6 space-y-3 sm:space-y-4">
-                
-                <div class="flex items-center justify-between pb-3 border-b border-outline-subtle">
-                  <div class="flex items-center gap-2 sm:gap-2.5">
-                    <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-secondary-container/70 text-secondary flex items-center justify-center shrink-0">
-                      <span class="material-symbols-outlined text-[16px] sm:text-[18px]">verified</span>
-                    </div>
-                    <div>
-                      <div class="text-xs font-bold text-primary">Live Diagnosis Engine</div>
-                      <div class="text-[10px] sm:text-[11px] text-on-surface-variant">ICAR Package of Practices</div>
-                    </div>
-                  </div>
-                  <span class="text-[10px] sm:text-[11px] font-semibold text-secondary bg-secondary-container/60 px-2 py-0.5 rounded-full">
-                    97.8% Accuracy
-                  </span>
-                </div>
-
-                <div class="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-surface-container-low border border-outline-subtle/60 space-y-1.5">
-                  <div class="flex items-center justify-between text-xs">
-                    <span class="font-semibold text-primary flex items-center gap-1 truncate">
-                      <span class="material-symbols-outlined text-[15px] text-secondary shrink-0">eco</span>
-                      Tomato Yellow Leaf Curl
-                    </span>
-                    <span class="text-[10px] text-red-600 bg-red-100 px-1.5 py-0.5 rounded font-bold shrink-0">URGENT</span>
-                  </div>
-                  <p class="text-xs text-on-surface-variant leading-relaxed">
-                    Vector suppression protocol: Spray cold-pressed Neem Oil @ 3ml/L and deploy yellow sticky traps.
-                  </p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2 pt-0.5 text-center">
-                  <div class="p-2 sm:p-2.5 rounded-xl bg-surface-container-low">
-                    <div class="text-xs font-bold text-primary">₹3,200/Acre</div>
-                    <div class="text-[10px] text-on-surface-variant">Avg. Fertilizer Saved</div>
-                  </div>
-                  <div class="p-2 sm:p-2.5 rounded-xl bg-surface-container-low">
-                    <div class="text-xs font-bold text-secondary">5 Seconds</div>
-                    <div class="text-[10px] text-on-surface-variant">Diagnosis Latency</div>
-                  </div>
-                </div>
-
-                <button onclick="showChatView()" type="button" class="w-full py-2.5 rounded-xl bg-primary text-white text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-primary-container transition-all shadow-sm cursor-pointer">
-                  <span>Start Live Consultation</span>
-                  <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
-                </button>
-
-              </div>
-            </div>
-
-          </div>
-
-          <!-- 4 Stats Cards Bar (Fluid Grid) -->
-          <div class="mt-10 sm:mt-14 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 p-3 sm:p-6 rounded-2xl sm:rounded-3xl bg-surface-container-low border border-outline-subtle/80">
-            <div class="flex flex-col p-1.5 sm:p-2">
-              <span class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-primary">50,000+</span>
-              <span class="text-[11px] sm:text-xs font-medium text-on-surface-variant mt-0.5">Farmers Advised</span>
-            </div>
-            <div class="flex flex-col p-1.5 sm:p-2">
-              <span class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-primary">96.8%</span>
-              <span class="text-[11px] sm:text-xs font-medium text-on-surface-variant mt-0.5">Diagnostic Accuracy</span>
-            </div>
-            <div class="flex flex-col p-1.5 sm:p-2">
-              <span class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-primary">14+</span>
-              <span class="text-[11px] sm:text-xs font-medium text-on-surface-variant mt-0.5">Agro-Climatic Zones</span>
-            </div>
-            <div class="flex flex-col p-1.5 sm:p-2">
-              <span class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-primary">24/7</span>
-              <span class="text-[11px] sm:text-xs font-medium text-on-surface-variant mt-0.5">Vernacular Voice</span>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- SECTION 2: INTERACTIVE LIVE PREVIEW (4-PART ARCHITECTURE) -->
-      <section class="w-full py-12 sm:py-16 bg-surface-container-low scroll-mt-20" id="live-preview-section">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div class="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-highest text-secondary text-[11px] font-bold uppercase tracking-wider mb-2">
-              <span>🔬</span>
-              <span>4-Part Structured Advisory</span>
-            </div>
-            <h2 class="text-2xl sm:text-3xl lg:text-4xl text-primary font-bold tracking-tight">
-              Interactive Diagnostic Preview
-            </h2>
-            <p class="text-xs sm:text-sm text-on-surface-variant mt-1.5">
-              Select a crop scenario to see how KrishiMitra formats ICAR-backed agronomic guidance.
+            <h1 class="text-5xl md:text-6xl text-km-green-primary font-bold leading-tight tracking-tight">
+              Smarter farming with AI guidance
+            </h1>
+            
+            <p class="text-base text-km-text-muted max-w-xl leading-relaxed">
+              Accurate crop diagnostics, pest control protocols, and weather-smart advisory in your local dialect. Instant, science-backed guidance built for Indian agriculture.
             </p>
+
+            <div class="flex items-center gap-4 pt-2">
+              <button onclick="showChatView()" type="button" class="flex items-center gap-2 px-6 py-3 rounded-xl bg-km-green-dark text-white font-semibold hover:bg-km-green-primary transition-all shadow-sm">
+                <span class="material-symbols-outlined text-[20px]">psychology</span>
+                Try AI Demo
+              </button>
+              <button onclick="document.getElementById('video-modal').classList.remove('hidden')" type="button" class="flex items-center gap-2 px-6 py-3 rounded-xl bg-km-green-light text-km-green-primary font-semibold hover:bg-[#d8e6df] transition-all">
+                <span class="material-symbols-outlined text-[20px]">play_circle</span>
+                Watch Demo
+              </button>
+            </div>
+
+            <div class="flex items-center gap-6 pt-4 text-xs font-semibold text-km-text-muted">
+              <div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-km-green-accent">check_circle</span> CIBRC Protocol Compliant</div>
+              <div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-km-green-accent">check_circle</span> 12 Regional Dialects</div>
+              <div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-km-green-accent">check_circle</span> Low-Bandwidth Ready</div>
+            </div>
           </div>
 
-          <!-- Preset Crop Selectors (Horizontal Scroll on Mobile) -->
-          <div class="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto pb-2 sm:pb-0 mb-6 no-scrollbar">
-            <button id="btn-paddy" onclick="loadSample('paddy')" type="button" class="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-primary text-on-primary text-xs sm:text-sm font-semibold shadow-sm shrink-0 transition-all hover:scale-105 active:scale-95 cursor-pointer">
-              🌾 Basmati Paddy BPH
-            </button>
-            <button id="btn-cotton" onclick="loadSample('cotton')" type="button" class="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-surface-container-highest text-on-surface text-xs sm:text-sm font-semibold shadow-sm shrink-0 transition-all hover:scale-105 active:scale-95 cursor-pointer">
-              ☁️ Cotton Whitefly
-            </button>
-            <button id="btn-tomato" onclick="loadSample('tomato')" type="button" class="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-surface-container-highest text-on-surface text-xs sm:text-sm font-semibold shadow-sm shrink-0 transition-all hover:scale-105 active:scale-95 cursor-pointer">
-              🍅 Tomato NPK Split
-            </button>
-            <button id="btn-mustard" onclick="loadSample('mustard')" type="button" class="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-surface-container-highest text-on-surface text-xs sm:text-sm font-semibold shadow-sm shrink-0 transition-all hover:scale-105 active:scale-95 cursor-pointer">
-              🌼 Mustard Aphids
-            </button>
+          <!-- Stats Bar -->
+          <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 p-8 rounded-2xl bg-[#F4F5F0]">
+            <div>
+              <div class="text-2xl font-bold text-km-green-primary">50,000+</div>
+              <div class="text-xs font-semibold text-km-text-muted mt-1">Farmers Advised This Rabi</div>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-km-green-primary">96.8%</div>
+              <div class="text-xs font-semibold text-km-text-muted mt-1">Diagnostic Accuracy Score</div>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-km-green-primary">14+</div>
+              <div class="text-xs font-semibold text-km-text-muted mt-1">Agro-Climatic Zones</div>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-km-green-primary">24/7</div>
+              <div class="text-xs font-semibold text-km-text-muted mt-1">Vernacular Voice & Help</div>
+            </div>
           </div>
-
-          <!-- Interactive 4-Part Response Card (Responsive Padding & Grid) -->
-          <div class="max-w-4xl mx-auto bg-surface-container-lowest rounded-2xl sm:rounded-3xl border border-outline-subtle shadow-xl overflow-hidden p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6" id="ai-response-box">
-            
-            <!-- Header of Response Card -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-outline-subtle">
-              <div class="space-y-1">
-                <span class="text-[10px] sm:text-[11px] font-bold text-secondary uppercase tracking-wider">Diagnosis Result</span>
-                <h3 id="diag-title" class="text-lg sm:text-xl lg:text-2xl font-bold text-primary">
-                  Brown Plant Hopper (BPH) with Early Sheath Blight
-                </h3>
-                <div id="diag-urgency" class="text-xs font-semibold text-amber-700 flex items-center gap-1.5">
-                  Recommended Action Window: Within 24 to 36 Hours
-                </div>
-              </div>
-
-              <div class="flex items-center gap-2 self-start sm:self-center">
-                <button onclick="playMockAudio()" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-xs font-semibold text-primary transition-colors cursor-pointer">
-                  <span class="material-symbols-outlined text-[16px] sm:text-[18px] text-secondary">volume_up</span>
-                  <span id="audio-lbl">Listen</span>
-                </button>
-                <button onclick="showChatView()" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-primary-container transition-colors cursor-pointer">
-                  <span>Chat Live</span>
-                  <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Part 1: Scientific Reasoning -->
-            <div class="space-y-1.5 sm:space-y-2">
-              <div class="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-wide">
-                <span class="w-5 h-5 rounded-full bg-secondary-container text-secondary flex items-center justify-center text-[10px] font-bold shrink-0">1</span>
-                <span>Why This Matters &amp; Agro Reasoning</span>
-              </div>
-              <p id="diag-reasoning" class="text-xs sm:text-sm text-on-surface-variant leading-relaxed pl-7">
-                Current high relative humidity (&gt;88%) and standing stagnant water in West Bengal’s lower Gangetic plains create an ideal microclimate for nymph multiplication. The sap-sucking nymphs cause xylem vascular collapse.
-              </p>
-            </div>
-
-            <!-- Part 2: Meta Indicators Grid (2 Cols on Mobile, 4 on Desktop) -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-surface-container-low border border-outline-subtle/70 text-xs">
-              <div>
-                <div class="text-[10px] sm:text-[11px] text-on-surface-variant font-medium">Target Pest / Pathogen</div>
-                <div id="meta-pest" class="font-bold text-primary mt-0.5 truncate">Nilaparvata lugens</div>
-              </div>
-              <div>
-                <div class="text-[10px] sm:text-[11px] text-on-surface-variant font-medium">Weather Trigger</div>
-                <div id="meta-trigger" class="font-bold text-primary mt-0.5 truncate">Humidity 88% / 29°C</div>
-              </div>
-              <div>
-                <div class="text-[10px] sm:text-[11px] text-on-surface-variant font-medium">Economic Threshold</div>
-                <div id="meta-etl" class="font-bold text-primary mt-0.5 truncate">5-10 hoppers / hill</div>
-              </div>
-              <div>
-                <div class="text-[10px] sm:text-[11px] text-on-surface-variant font-medium">ICAR Protocol</div>
-                <div id="meta-protocol" class="font-bold text-secondary mt-0.5 truncate">Pkg Rabi-Rice #4B</div>
-              </div>
-            </div>
-
-            <!-- Part 3: Actionable Protocol Steps -->
-            <div class="space-y-2.5 sm:space-y-3" id="diag-part-3">
-              <div class="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-wide">
-                <span class="w-5 h-5 rounded-full bg-secondary-container text-secondary flex items-center justify-center text-[10px] font-bold shrink-0">2</span>
-                <span>Action Protocol &amp; Application Steps</span>
-              </div>
-              <div class="space-y-2 pl-7">
-                <div class="flex items-start gap-2.5 p-2.5 sm:p-3 rounded-xl bg-surface-container-low text-xs sm:text-sm text-on-surface">
-                  <span class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary text-white flex items-center justify-center text-[9px] sm:text-[10px] shrink-0 mt-0.5 font-bold">1</span>
-                  <div class="step-text"><strong>Drain Standing Water:</strong> Temporarily drain field standing water for 48 hours to expose nymph habitat.</div>
-                </div>
-                <div class="flex items-start gap-2.5 p-2.5 sm:p-3 rounded-xl bg-surface-container-low text-xs sm:text-sm text-on-surface">
-                  <span class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary text-white flex items-center justify-center text-[9px] sm:text-[10px] shrink-0 mt-0.5 font-bold">2</span>
-                  <div class="step-text"><strong>Targeted Spray Application:</strong> Spray Pymetrozine 50% WG @ 120g/acre diluted in 200 Litres of clean water.</div>
-                </div>
-                <div class="flex items-start gap-2.5 p-2.5 sm:p-3 rounded-xl bg-surface-container-low text-xs sm:text-sm text-on-surface">
-                  <span class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary text-white flex items-center justify-center text-[9px] sm:text-[10px] shrink-0 mt-0.5 font-bold">3</span>
-                  <div class="step-text"><strong>Nozzle Adjustment:</strong> Direct hollow-cone nozzle spray towards the lower canopy and stem base.</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Part 4: Safety & Caution -->
-            <div class="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-amber-500/10 border border-amber-600/20 text-xs sm:text-sm text-amber-950 space-y-1">
-              <div class="flex items-center gap-1.5 font-bold text-amber-900">
-                <span class="material-symbols-outlined text-[16px] sm:text-[18px]">warning</span>
-                <span>Mandatory Caution &amp; Pre-Harvest Interval (PHI)</span>
-              </div>
-              <p id="diag-precaution" class="leading-relaxed">
-                Pre-Harvest Interval (PHI): Maintain a mandatory 19-day buffer before harvesting. Avoid synthetic pyrethroids which induce secondary pest resurgence.
-              </p>
-            </div>
-
-          </div>
-
         </div>
       </section>
 
-      <!-- SECTION 3: CORE PILLARS & AGRICULTURAL CAPABILITIES GRID -->
-      <section class="w-full py-12 sm:py-20 bg-surface" id="features-section">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- SECTION: FEATURES GRID -->
+      <section id="features" class="w-full py-20 bg-km-surface">
+        <div class="max-w-[1200px] mx-auto px-6">
+          <div class="mb-12">
+            <h2 class="text-3xl font-bold text-km-green-primary">Agricultural Intelligence Pillars</h2>
+            <p class="text-km-text-muted mt-2">Six field-tested capabilities conforming strictly to ICAR package of practices.</p>
+          </div>
           
-          <div class="max-w-2xl mb-8 sm:mb-12">
-            <h2 class="text-2xl sm:text-3xl lg:text-4xl text-primary font-bold tracking-tight">
-              Agricultural Intelligence Pillars
-            </h2>
-            <p class="text-xs sm:text-sm text-on-surface-variant mt-1.5">
-              Six field-tested capabilities conforming strictly to ICAR package of practices.
-            </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Card 1 -->
+            <div class="p-8 rounded-2xl bg-white shadow-sm flex flex-col justify-between border border-km-border/50">
+              <div>
+                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5">
+                  <span class="material-symbols-outlined text-[20px]">photo_camera</span>
+                </div>
+                <h3 class="text-lg font-bold text-km-text-main mb-2">Pest & Disease Scan</h3>
+                <p class="text-sm text-km-text-muted leading-relaxed">Snap any affected crop leaf or stem. AI instantly identifies rusts, blights, and borers with exact ICAR remedies.</p>
+              </div>
+              <div class="text-[11px] font-bold text-km-green-accent uppercase tracking-wide mt-6">5 Sec Detection</div>
+            </div>
+            <!-- Card 2 -->
+            <div class="p-8 rounded-2xl bg-white shadow-sm flex flex-col justify-between border border-km-border/50">
+              <div>
+                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5">
+                  <span class="material-symbols-outlined text-[20px]">science</span>
+                </div>
+                <h3 class="text-lg font-bold text-km-text-main mb-2">Fertilizer Calculator</h3>
+                <p class="text-sm text-km-text-muted leading-relaxed">Eliminate excess urea wastage with precise split-dose N-P-K recommendations tailored to crop stage and soil card.</p>
+              </div>
+              <div class="text-[11px] font-bold text-km-green-accent uppercase tracking-wide mt-6">Save ₹3,200/Acre</div>
+            </div>
+            <!-- Card 3 -->
+            <div class="p-8 rounded-2xl bg-white shadow-sm flex flex-col justify-between border border-km-border/50">
+              <div>
+                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5">
+                  <span class="material-symbols-outlined text-[20px]">thunderstorm</span>
+                </div>
+                <h3 class="text-lg font-bold text-km-text-main mb-2">Hyper-Local Weather</h3>
+                <p class="text-sm text-km-text-muted leading-relaxed">Integrated with IMD radar data for spray window alerts, wind speed warnings, and frost risk forecasts.</p>
+              </div>
+              <div class="text-[11px] font-bold text-km-green-accent uppercase tracking-wide mt-6">48-Hr Rain Radar</div>
+            </div>
+            <!-- Card 4 -->
+            <div class="p-8 rounded-2xl bg-white shadow-sm flex flex-col justify-between border border-km-border/50">
+              <div>
+                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5">
+                  <span class="material-symbols-outlined text-[20px]">query_stats</span>
+                </div>
+                <h3 class="text-lg font-bold text-km-text-main mb-2">Mandi Market Trends</h3>
+                <p class="text-sm text-km-text-muted leading-relaxed">Real-time modal pricing across nearby APMC mandis to help plan harvest timing and optimize freight dispatch.</p>
+              </div>
+              <div class="text-[11px] font-bold text-km-green-accent uppercase tracking-wide mt-6">Live e-NAM Benchmark</div>
+            </div>
+            <!-- Card 5 -->
+            <div class="p-8 rounded-2xl bg-white shadow-sm flex flex-col justify-between border border-km-border/50">
+              <div>
+                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5">
+                  <span class="material-symbols-outlined text-[20px]">mic</span>
+                </div>
+                <h3 class="text-lg font-bold text-km-text-main mb-2">Multilingual Voice</h3>
+                <p class="text-sm text-km-text-muted leading-relaxed">Speak hands-free in Hindi, Bengali, Telugu, Punjabi, Marathi, or Kannada and receive natural speech responses.</p>
+              </div>
+              <div class="text-[11px] font-bold text-km-green-accent uppercase tracking-wide mt-6">Speech-To-Speech Engine</div>
+            </div>
+            <!-- Card 6 -->
+            <div class="p-8 rounded-2xl bg-white shadow-sm flex flex-col justify-between border border-km-border/50">
+              <div>
+                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5">
+                  <span class="material-symbols-outlined text-[20px]">contact_phone</span>
+                </div>
+                <h3 class="text-lg font-bold text-km-text-main mb-2">KVK Escalation</h3>
+                <p class="text-sm text-km-text-muted leading-relaxed">Unresolved anomalies seamlessly transfer to Krishi Vigyan Kendra scientists and Kisan Call Centre experts.</p>
+              </div>
+              <div class="text-[11px] font-bold text-km-green-accent uppercase tracking-wide mt-6">Human Expert Escalation</div>
+            </div>
           </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-surface-container-lowest hover:bg-surface-container-low transition-all border border-outline-subtle shadow-sm flex flex-col justify-between group">
-              <div class="space-y-2.5">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-surface-container flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
-                  <span class="material-symbols-outlined text-[22px] sm:text-[24px]">photo_camera</span>
-                </div>
-                <h3 class="text-base sm:text-lg font-bold text-primary">Pest &amp; Disease Scan</h3>
-                <p class="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-                  Snap any affected crop leaf or stem. AI instantly identifies rusts, blights, and borers with exact ICAR remedies.
-                </p>
-              </div>
-              <span class="text-xs font-bold text-secondary pt-4 sm:pt-6 flex items-center gap-1">
-                <span>5 Sec Detection</span>
-                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-              </span>
-            </div>
-
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-surface-container-lowest hover:bg-surface-container-low transition-all border border-outline-subtle shadow-sm flex flex-col justify-between group">
-              <div class="space-y-2.5">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-surface-container flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
-                  <span class="material-symbols-outlined text-[22px] sm:text-[24px]">science</span>
-                </div>
-                <h3 class="text-base sm:text-lg font-bold text-primary">Fertilizer Calculator</h3>
-                <p class="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-                  Eliminate excess urea wastage with precise split-dose N-P-K recommendations tailored to crop stage and soil card.
-                </p>
-              </div>
-              <span class="text-xs font-bold text-secondary pt-4 sm:pt-6 flex items-center gap-1">
-                <span>Save ₹3,200/Acre</span>
-                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-              </span>
-            </div>
-
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-surface-container-lowest hover:bg-surface-container-low transition-all border border-outline-subtle shadow-sm flex flex-col justify-between group">
-              <div class="space-y-2.5">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-surface-container flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
-                  <span class="material-symbols-outlined text-[22px] sm:text-[24px]">thunderstorm</span>
-                </div>
-                <h3 class="text-base sm:text-lg font-bold text-primary">Hyper-Local Weather</h3>
-                <p class="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-                  Integrated with IMD radar data for spray window alerts, wind speed warnings, and frost risk forecasts.
-                </p>
-              </div>
-              <span class="text-xs font-bold text-secondary pt-4 sm:pt-6 flex items-center gap-1">
-                <span>48-Hr Rain Radar</span>
-                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-              </span>
-            </div>
-
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-surface-container-lowest hover:bg-surface-container-low transition-all border border-outline-subtle shadow-sm flex flex-col justify-between group">
-              <div class="space-y-2.5">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-surface-container flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
-                  <span class="material-symbols-outlined text-[22px] sm:text-[24px]">query_stats</span>
-                </div>
-                <h3 class="text-base sm:text-lg font-bold text-primary">Mandi Market Trends</h3>
-                <p class="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-                  Real-time modal pricing across nearby APMC mandis to help plan harvest timing and optimize freight dispatch.
-                </p>
-              </div>
-              <span class="text-xs font-bold text-secondary pt-4 sm:pt-6 flex items-center gap-1">
-                <span>Live e-NAM Benchmark</span>
-                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-              </span>
-            </div>
-
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-surface-container-lowest hover:bg-surface-container-low transition-all border border-outline-subtle shadow-sm flex flex-col justify-between group">
-              <div class="space-y-2.5">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-surface-container flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
-                  <span class="material-symbols-outlined text-[22px] sm:text-[24px]">mic</span>
-                </div>
-                <h3 class="text-base sm:text-lg font-bold text-primary">Multilingual Voice</h3>
-                <p class="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-                  Speak hands-free in Hindi, Bengali, Telugu, Punjabi, Marathi, or Kannada and receive natural speech responses.
-                </p>
-              </div>
-              <span class="text-xs font-bold text-secondary pt-4 sm:pt-6 flex items-center gap-1">
-                <span>Speech-to-Speech Engine</span>
-                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-              </span>
-            </div>
-
-            <div class="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-surface-container-lowest hover:bg-surface-container-low transition-all border border-outline-subtle shadow-sm flex flex-col justify-between group">
-              <div class="space-y-2.5">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-surface-container flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
-                  <span class="material-symbols-outlined text-[22px] sm:text-[24px]">contact_phone</span>
-                </div>
-                <h3 class="text-base sm:text-lg font-bold text-primary">KVK Escalation</h3>
-                <p class="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-                  Unresolved anomalies seamlessly transfer to Krishi Vigyan Kendra scientists and Kisan Call Centre experts.
-                </p>
-              </div>
-              <span class="text-xs font-bold text-secondary pt-4 sm:pt-6 flex items-center gap-1">
-                <span>Human Expert Escalation</span>
-                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-              </span>
-            </div>
-
-          </div>
-
         </div>
       </section>
 
-      <!-- SECTION 4: HOW IT WORKS (3 SIMPLE STEPS) -->
-      <section class="w-full py-12 sm:py-20 bg-surface-container-low" id="how-it-works-section">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- SECTION: HOW IT WORKS -->
+      <section class="w-full py-20 bg-km-surface">
+        <div class="max-w-[1200px] mx-auto px-6 text-center">
+          <h2 class="text-3xl font-bold text-km-green-primary mb-2">How It Works</h2>
+          <p class="text-km-text-muted mb-12">Three simple steps designed for seamless use in the field.</p>
           
-          <div class="text-center max-w-xl mx-auto mb-8 sm:mb-12">
-            <h2 class="text-2xl sm:text-3xl lg:text-4xl text-primary font-bold tracking-tight">
-              How It Works
-            </h2>
-            <p class="text-xs sm:text-sm text-on-surface-variant mt-1.5">
-              Three simple steps designed for seamless use in the field.
-            </p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-km-border/50">
+              <div class="text-km-green-accent font-bold text-lg mb-4">01</div>
+              <h3 class="font-bold text-km-text-main mb-2">Ask or Snap a Photo</h3>
+              <p class="text-sm text-km-text-muted">Speak in your native dialect or capture an affected leaf photo on any basic smartphone.</p>
+            </div>
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-km-border/50">
+              <div class="text-km-green-accent font-bold text-lg mb-4">02</div>
+              <h3 class="font-bold text-km-text-main mb-2">Get Validated Advisory</h3>
+              <p class="text-sm text-km-text-muted">Receive an instant diagnosis with recommended biological or chemical remedies and safe dilution ratios.</p>
+            </div>
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-km-border/50">
+              <div class="text-km-green-accent font-bold text-lg mb-4">03</div>
+              <h3 class="font-bold text-km-text-main mb-2">Protect Yield & Inputs</h3>
+              <p class="text-sm text-km-text-muted">Intervene before pests spread, cutting input expenses while protecting your harvest.</p>
+            </div>
           </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-            
-            <div class="p-5 sm:p-7 rounded-2xl sm:rounded-3xl bg-surface-container-lowest shadow-sm border border-outline-subtle flex flex-col">
-              <span class="text-2xl sm:text-3xl font-extrabold text-secondary mb-2 sm:mb-3">01</span>
-              <h3 class="text-base sm:text-lg font-bold text-primary mb-1 sm:mb-2">Ask or Snap a Photo</h3>
-              <p class="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-                Speak in your native dialect or capture an affected leaf photo on any basic smartphone.
-              </p>
-            </div>
-
-            <div class="p-5 sm:p-7 rounded-2xl sm:rounded-3xl bg-surface-container-lowest shadow-sm border border-outline-subtle flex flex-col">
-              <span class="text-2xl sm:text-3xl font-extrabold text-secondary mb-2 sm:mb-3">02</span>
-              <h3 class="text-base sm:text-lg font-bold text-primary mb-1 sm:mb-2">Get Validated Advisory</h3>
-              <p class="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-                Receive an instant diagnosis with recommended biological or chemical remedies and safe dilution ratios.
-              </p>
-            </div>
-
-            <div class="p-5 sm:p-7 rounded-2xl sm:rounded-3xl bg-surface-container-lowest shadow-sm border border-outline-subtle flex flex-col">
-              <span class="text-2xl sm:text-3xl font-extrabold text-secondary mb-2 sm:mb-3">03</span>
-              <h3 class="text-base sm:text-lg font-bold text-primary mb-1 sm:mb-2">Protect Yield &amp; Inputs</h3>
-              <p class="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-                Intervene before pests spread, cutting input expenses while protecting your harvest.
-              </p>
-            </div>
-
-          </div>
-
         </div>
       </section>
 
-      <!-- SECTION 5: CALL TO ACTION BANNER -->
-      <section class="w-full py-12 sm:py-16 bg-surface">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="rounded-2xl sm:rounded-3xl bg-primary text-on-primary p-6 sm:p-10 lg:p-12 shadow-2xl relative overflow-hidden">
-            
-            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
-              
-              <div class="max-w-xl space-y-2 sm:space-y-3">
-                <h2 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-on-primary tracking-tight">
-                  Ready to make informed farm decisions?
-                </h2>
-                <p class="text-xs sm:text-sm text-on-primary-container leading-relaxed">
-                  Protect crops from diseases, optimize fertilizer inputs, and check real-time market prices. Free forever, no app download required.
-                </p>
-              </div>
-
-              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto shrink-0">
-                <button onclick="showChatView()" type="button" class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-secondary-container text-on-secondary-container text-xs sm:text-sm font-bold hover:bg-secondary-fixed-dim transition-all shadow-md active:scale-95 cursor-pointer">
-                  <span>Get Started Free</span>
-                </button>
-                <a href="tel:18001801551" class="inline-flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl bg-primary-container text-on-primary text-xs sm:text-sm font-semibold hover:bg-primary-container/80 transition-all border border-emerald-700/50">
-                  <span class="material-symbols-outlined text-[18px]">call</span>
-                  <span>1800-180-1551</span>
-                </a>
-              </div>
-
+      <!-- SECTION: CTA BANNER -->
+      <section class="w-full py-16 bg-km-surface">
+        <div class="max-w-[1200px] mx-auto px-6">
+          <div class="bg-km-green-dark rounded-3xl p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div class="max-w-xl text-white">
+              <h2 class="text-3xl font-bold mb-4">Ready to make informed farm decisions?</h2>
+              <p class="text-km-green-light/80">Protect crops from diseases, optimize fertilizer inputs, and check real-time market prices. Free forever, no app download required.</p>
             </div>
-
+            <button onclick="showChatView()" type="button" class="px-8 py-4 rounded-xl bg-[#86E4B1] text-km-green-dark font-bold hover:bg-[#6FD89F] transition-colors whitespace-nowrap">
+              Get Started Free
+            </button>
           </div>
         </div>
       </section>
@@ -599,480 +301,281 @@
     </main>
 
     <!-- Footer -->
-    <footer class="w-full bg-surface-container-low border-t border-outline-subtle">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div class="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 text-center md:text-left">
-          <div class="flex items-center gap-2">
-            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-primary text-secondary-container flex items-center justify-center">
-              <span class="material-symbols-outlined text-[16px] sm:text-[18px]">potted_plant</span>
-            </div>
-            <span class="text-base sm:text-lg font-bold text-primary">KrishiMitra<span class="text-secondary ml-1">AI</span></span>
+    <footer class="w-full bg-km-surface pb-8 pt-8">
+      <div class="max-w-[1200px] mx-auto px-6 border-t border-km-border/50 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded-md bg-km-green-primary text-white flex items-center justify-center">
+            <span class="material-symbols-outlined text-[14px]">psychology</span>
           </div>
-          <p class="text-xs text-on-surface-variant">
-            © 2025 KrishiMitra AI. Grounded in ICAR research guidelines.
-          </p>
-          <div class="flex items-center gap-4 sm:gap-6 text-xs text-on-surface-variant font-medium">
-            <a href="#" class="hover:text-primary">Privacy Policy</a>
-            <a href="#" class="hover:text-primary">Terms of Service</a>
-            <a href="#" class="hover:text-primary">ICAR Guidelines</a>
-          </div>
+          <span class="text-sm font-bold text-km-green-primary">KrishiMitra <span class="text-km-green-accent">AI</span></span>
+        </div>
+        <p class="text-xs text-km-text-muted text-center md:text-left flex-1 md:ml-8">
+          Next-generation agronomic intelligence platform for Indian farmers and field officers.<br/><br/>
+          © 2025 KrishiMitra AI. Built for Indian agriculture.
+        </p>
+        <div class="flex items-center gap-6 text-xs text-km-text-muted font-semibold">
+          <a href="#" class="hover:text-km-text-main">Privacy</a>
+          <a href="#" class="hover:text-km-text-main">Terms</a>
+          <a href="#" class="hover:text-km-text-main">Disclaimer</a>
         </div>
       </div>
     </footer>
-
   </div>
 
   <!-- =========================================================================
-       VIEW 2: DEDICATED AI ASSISTANT CHAT WORKSPACE (CLAUDE / CHATGPT STYLE)
+       VIEW 2: AI ASSISTANT CHAT WORKSPACE
   ========================================================================== -->
-  <div id="chat-view" class="fixed inset-0 z-50 bg-surface text-on-surface antialiased flex h-screen overflow-hidden hidden selection:bg-secondary/20 selection:text-primary">
-    
-    <!-- Mobile Sidebar Backdrop Overlay -->
-    <div id="sidebar-backdrop" onclick="toggleSidebar()" class="sidebar-backdrop hidden lg:hidden"></div>
-
-    <!-- Left Sidebar (Responsive Sliding Drawer on Mobile, Fixed Collapsible on Desktop) -->
-    <aside id="app-sidebar" class="fixed lg:static top-0 bottom-0 left-0 w-72 bg-sidebar-bg flex flex-col shrink-0 h-full border-r border-sidebar-border select-none z-40 transition-transform duration-300 -translate-x-full lg:translate-x-0">
+  <div id="chat-view" class="fixed inset-0 z-50 bg-[#FCFCFC] flex hidden">
+    <!-- Sidebar -->
+    <aside id="app-sidebar" class="w-[280px] bg-[#17201C] h-full flex flex-col text-white shrink-0 transition-transform duration-300">
+      <div class="p-4 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-km-green-accent flex items-center justify-center text-white">
+          <span class="material-symbols-outlined text-[18px]">eco</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-sm font-semibold flex items-center gap-2">
+            KrishiMitra <span class="text-[10px] bg-km-green-accent/20 text-km-green-accent px-1.5 py-0.5 rounded border border-km-green-accent/30">3.2</span>
+          </span>
+          <span class="text-[11px] text-gray-400">Granite Agronomy ICAR</span>
+        </div>
+      </div>
       
-      <!-- Top Branding & Model Info -->
-      <div class="p-3.5 pb-2 flex items-center justify-between">
-        <div onclick="startNewConsultation()" class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-sidebar-surface cursor-pointer transition-colors group flex-1">
-          <div class="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0 shadow-sm">
-            <span class="material-symbols-outlined text-[18px]">eco</span>
-          </div>
-          <div class="flex flex-col min-w-0">
-            <span class="text-sm font-semibold tracking-tight text-neutral-100 flex items-center gap-1">
-              KrishiMitra
-              <span class="text-[10px] font-normal text-emerald-400 bg-emerald-950/70 border border-emerald-800/60 px-1.5 py-0.2 rounded">3.2</span>
-            </span>
-            <span class="text-[11px] text-sidebar-muted truncate">Granite Agronomy ICAR</span>
-          </div>
-        </div>
-        <button onclick="toggleSidebar()" class="text-sidebar-muted hover:text-neutral-200 p-1.5 rounded-md hover:bg-sidebar-surface transition-colors cursor-pointer" title="Close sidebar" type="button">
-          <span class="material-symbols-outlined text-[20px]">left_panel_close</span>
+      <div class="px-4 mt-2">
+        <button onclick="startNewConsultation()" class="w-full flex items-center gap-2 px-4 py-3 rounded-xl bg-[#232F29] hover:bg-[#2A3731] text-sm font-medium transition-colors border border-white/5">
+          <span class="material-symbols-outlined text-[18px] text-km-green-accent">add</span>
+          New consultation
         </button>
       </div>
 
-      <!-- New Consultation Action -->
-      <div class="px-3 pt-1.5 pb-2">
-        <button onclick="startNewConsultation()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-sidebar-surface hover:bg-[#252c28] border border-sidebar-border text-neutral-200 text-sm font-medium transition-all group shadow-sm cursor-pointer" type="button">
-          <div class="flex items-center gap-2.5">
-            <span class="material-symbols-outlined text-[18px] text-emerald-400 group-hover:rotate-90 transition-transform duration-200">add</span>
-            <span>New consultation</span>
-          </div>
-          <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono text-neutral-400 bg-neutral-800/80 rounded border border-neutral-700">⌘K</kbd>
-        </button>
+      <!-- Sidebar History Area (used by app.js to populate history if implemented, empty for now as requested) -->
+      <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+        <!-- History items could go here -->
       </div>
 
-      <!-- Conversations Thread History -->
-      <div class="flex-1 overflow-y-auto sidebar-scroll px-3 py-2 space-y-4">
-        
-        <!-- Section: Today -->
-        <div>
-          <div class="px-2 pb-1.5 text-[11px] font-medium tracking-wider text-sidebar-muted/80 uppercase">Today</div>
-          <div class="space-y-0.5" id="history-today">
-            <div onclick="loadHistoryItem('tomato-leaf-curl', this)" class="history-item group relative flex items-center justify-between px-2.5 py-2 rounded-lg bg-emerald-950/30 text-neutral-200 border border-emerald-900/30 cursor-pointer">
-              <div class="flex items-center gap-2.5 truncate min-w-0 pr-1">
-                <span class="material-symbols-outlined text-[17px] text-emerald-400 shrink-0">chat_bubble</span>
-                <span class="text-[13px] font-medium truncate">Tomato Leaf Curl &amp; Bio-spray</span>
-              </div>
-              <div class="hidden group-hover:flex items-center gap-0.5 shrink-0 text-sidebar-muted">
-                <button class="p-1 hover:text-neutral-200 hover:bg-neutral-800 rounded"><span class="material-symbols-outlined text-[15px]">edit</span></button>
-                <button class="p-1 hover:text-red-400 hover:bg-neutral-800 rounded"><span class="material-symbols-outlined text-[15px]">delete</span></button>
-              </div>
-            </div>
-            <div onclick="loadHistoryItem('urea-dosage-paddy', this)" class="history-item group relative flex items-center justify-between px-2.5 py-2 rounded-lg hover:bg-sidebar-surface text-neutral-300 hover:text-neutral-100 cursor-pointer transition-colors">
-              <div class="flex items-center gap-2.5 truncate min-w-0">
-                <span class="material-symbols-outlined text-[17px] text-sidebar-muted group-hover:text-neutral-300 shrink-0">chat_bubble</span>
-                <span class="text-[13px] truncate">Urea dosage for Basmati Paddy</span>
-              </div>
-              <div class="hidden group-hover:flex items-center gap-0.5 shrink-0 text-sidebar-muted">
-                <button class="p-1 hover:text-neutral-200 hover:bg-neutral-800 rounded"><span class="material-symbols-outlined text-[15px]">more_horiz</span></button>
-              </div>
-            </div>
-          </div>
+      <div class="mt-auto p-4 flex items-center gap-3 border-t border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onclick="openAuthModal(true)">
+        <div class="w-8 h-8 rounded-full bg-[#232F29] flex items-center justify-center text-xs font-bold text-km-green-accent">
+          RP
         </div>
-
-        <!-- Section: Previous 7 Days -->
-        <div>
-          <div class="px-2 pb-1.5 text-[11px] font-medium tracking-wider text-sidebar-muted/80 uppercase">Previous 7 Days</div>
-          <div class="space-y-0.5" id="history-previous">
-            <div onclick="loadHistoryItem('black-soil-moisture', this)" class="history-item group relative flex items-center justify-between px-2.5 py-2 rounded-lg hover:bg-sidebar-surface text-neutral-300 hover:text-neutral-100 cursor-pointer transition-colors">
-              <div class="flex items-center gap-2.5 truncate min-w-0">
-                <span class="material-symbols-outlined text-[17px] text-sidebar-muted shrink-0">chat_bubble</span>
-                <span class="text-[13px] truncate">Black soil moisture retention</span>
-              </div>
-              <div class="hidden group-hover:flex items-center gap-0.5 shrink-0 text-sidebar-muted">
-                <button class="p-1 hover:text-neutral-200 hover:bg-neutral-800 rounded"><span class="material-symbols-outlined text-[15px]">more_horiz</span></button>
-              </div>
-            </div>
-            <div onclick="useSuggestedQuery('How do I manage fall armyworm in maize with pheromone traps?')" class="history-item group relative flex items-center justify-between px-2.5 py-2 rounded-lg hover:bg-sidebar-surface text-neutral-300 hover:text-neutral-100 cursor-pointer transition-colors">
-              <div class="flex items-center gap-2.5 truncate min-w-0">
-                <span class="material-symbols-outlined text-[17px] text-sidebar-muted shrink-0">chat_bubble</span>
-                <span class="text-[13px] truncate">Fall Armyworm trap placement</span>
-              </div>
-              <div class="hidden group-hover:flex items-center gap-0.5 shrink-0 text-sidebar-muted">
-                <button class="p-1 hover:text-neutral-200 hover:bg-neutral-800 rounded"><span class="material-symbols-outlined text-[15px]">more_horiz</span></button>
-              </div>
-            </div>
-            <div onclick="useSuggestedQuery('What are today APMC mandi modal rates for tomato and cotton in Chittoor?')" class="history-item group relative flex items-center justify-between px-2.5 py-2 rounded-lg hover:bg-sidebar-surface text-neutral-300 hover:text-neutral-100 cursor-pointer transition-colors">
-              <div class="flex items-center gap-2.5 truncate min-w-0">
-                <span class="material-symbols-outlined text-[17px] text-sidebar-muted shrink-0">chat_bubble</span>
-                <span class="text-[13px] truncate">Mandi price trends in Chittoor</span>
-              </div>
-              <div class="hidden group-hover:flex items-center gap-0.5 shrink-0 text-sidebar-muted">
-                <button class="p-1 hover:text-neutral-200 hover:bg-neutral-800 rounded"><span class="material-symbols-outlined text-[15px]">more_horiz</span></button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Sidebar Bottom / User Profile & Settings -->
-      <div class="p-3 border-t border-sidebar-border flex flex-col gap-1">
-        <div onclick="openAuthModal(true)" class="flex items-center justify-between px-2 py-2 rounded-xl hover:bg-sidebar-surface cursor-pointer text-neutral-300 transition-colors">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-full bg-primary-container text-emerald-300 border border-emerald-700/40 flex items-center justify-center text-xs font-bold tracking-tight">
-              RP
-            </div>
-            <div class="flex flex-col">
-              <span class="text-xs font-semibold text-neutral-200 leading-tight">Rameshwar Patel</span>
-              <span class="text-[11px] text-emerald-400 font-medium">Farmer Pro Plan</span>
-            </div>
-          </div>
-          <span class="material-symbols-outlined text-[18px] text-sidebar-muted">more_vert</span>
-        </div>
-        <div class="flex items-center justify-between px-2 pt-1.5 text-[11px] text-sidebar-muted">
-          <div class="flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
-            <span id="sidebar-status-text">Granite AI 3.2 Active</span>
-          </div>
-          <a class="hover:text-emerald-300 flex items-center gap-1 text-[11px] text-sidebar-muted" href="tel:18001801551">
-            <span class="material-symbols-outlined text-[13px]">call</span>
-            <span>1800-180-1551</span>
-          </a>
+        <div class="flex flex-col">
+          <span class="text-xs font-semibold">NAME NAME</span>
+          <span id="sidebar-status-text" class="text-[10px] text-km-green-accent">Farmer Pro Plan</span>
         </div>
       </div>
     </aside>
 
     <!-- Main Workspace -->
-    <div class="flex-1 flex flex-col h-full bg-surface relative overflow-hidden min-w-0">
-      
-      <!-- Minimalist Top Navigation Bar -->
-      <header class="h-14 px-3 sm:px-6 flex items-center justify-between border-b border-outline-subtle/50 bg-surface/80 backdrop-blur-md z-20 shrink-0">
-        <div class="flex items-center gap-1 sm:gap-2 min-w-0">
-          <button onclick="toggleSidebar()" class="p-1.5 sm:p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-subtle rounded-lg transition-colors cursor-pointer shrink-0" title="Toggle sidebar" type="button">
-            <span class="material-symbols-outlined text-[20px]">menu</span>
+    <main class="flex-1 flex flex-col h-full relative min-w-0">
+      <!-- Top nav -->
+      <header class="h-16 flex items-center justify-between px-6 border-b border-gray-100 bg-white/80 backdrop-blur shrink-0">
+        <div class="flex items-center gap-4">
+          <button onclick="toggleSidebar()" class="text-gray-400 hover:text-gray-600"><span class="material-symbols-outlined text-[20px]">menu</span></button>
+          <button onclick="showLandingView()" class="hidden md:flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-gray-800">
+             <span class="material-symbols-outlined text-[16px]">arrow_back</span> Overview
           </button>
-          
-          <!-- Back to Landing Link -->
-          <button onclick="showLandingView()" class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium text-on-surface-variant hover:text-primary hover:bg-surface-subtle transition-colors cursor-pointer shrink-0" title="Back to overview">
-            <span class="material-symbols-outlined text-[16px]">arrow_back</span>
-            <span class="hidden sm:inline">Overview</span>
-          </button>
-
-          <!-- Centered Model Pill Selector -->
-          <div class="flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg hover:bg-surface-subtle border border-transparent hover:border-outline-subtle cursor-pointer transition-all truncate">
-            <span class="text-xs sm:text-sm font-semibold text-on-surface flex items-center gap-1 truncate">
-              <span class="material-symbols-outlined text-[16px] sm:text-[18px] text-secondary shrink-0">psychology</span>
-              <span class="truncate">KrishiMitra 3.2</span>
-            </span>
-            <span class="hidden md:inline-block text-[10px] font-medium text-secondary bg-secondary-container/60 px-1.5 py-0.5 rounded-md border border-secondary/20">ICAR Synced</span>
+          <div class="flex items-center gap-2 text-sm font-semibold text-gray-800 border-l border-gray-200 pl-4 ml-2">
+            <span class="material-symbols-outlined text-[18px] text-km-green-accent">psychology</span>
+            KrishiMitra 3.2
+            <span class="material-symbols-outlined text-[16px] text-gray-400">expand_more</span>
           </div>
         </div>
-
-        <!-- Right Header Actions -->
-        <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
-          <div class="hidden sm:flex items-center gap-1 text-xs text-on-surface-variant bg-surface-subtle px-2.5 py-1 rounded-full border border-outline-subtle/70">
-            <span class="material-symbols-outlined text-[14px] text-secondary">location_on</span>
-            <span class="font-medium text-[12px]">Chittoor, AP</span>
-          </div>
-          
-          <div class="relative">
-            <select id="chat-lang-select" onchange="changeLanguage(this.value)" aria-label="Language selector" class="h-8 pl-2 sm:pl-2.5 pr-5 sm:pr-6 text-xs rounded-lg bg-surface-subtle text-on-surface hover:bg-surface-card font-medium border border-outline-subtle cursor-pointer appearance-none focus:outline-none focus:ring-1 focus:ring-secondary">
+        <div class="flex items-center gap-4">
+          <div class="relative hidden sm:block">
+            <select id="chat-lang-select" onchange="changeLanguage(this.value)" class="bg-transparent border border-gray-200 px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer appearance-none outline-none pr-7">
               <option value="en">English</option>
               <option value="hi">हिन्दी</option>
               <option value="te">తెలుగు</option>
               <option value="bn">বাংলা</option>
             </select>
-            <span class="material-symbols-outlined absolute right-1 sm:right-1.5 top-2 text-[14px] text-on-surface-variant pointer-events-none">expand_more</span>
+            <span class="material-symbols-outlined absolute right-2 top-[7px] text-[16px] text-gray-400 pointer-events-none">expand_more</span>
           </div>
-          
-          <button onclick="shareActiveConsultation()" class="p-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-subtle rounded-lg transition-colors cursor-pointer" title="Share consultation" type="button">
-            <span class="material-symbols-outlined text-[18px] sm:text-[19px]">ios_share</span>
-          </button>
+          <button class="text-gray-400 hover:text-gray-600"><span class="material-symbols-outlined text-[20px]">ios_share</span></button>
         </div>
       </header>
 
-      <!-- Scrollable Central Conversation Area -->
-      <main id="chat-scroll-area" class="flex-1 overflow-y-auto flex flex-col items-center px-3 sm:px-6 py-4 sm:py-6 scroll-smooth w-full">
+      <!-- Chat area container -->
+      <div id="chat-scroll-area" class="flex-1 overflow-y-auto flex flex-col items-center px-4 sm:px-6 py-6 scroll-smooth w-full relative">
         
-        <!-- Welcome Hero (Shown on Empty/New Session) -->
-        <div id="welcome-view" class="w-full max-w-2xl lg:max-w-3xl flex flex-col my-auto space-y-5 sm:space-y-7 transition-all duration-300">
+        <!-- Welcome View (Default State) -->
+        <div id="welcome-view" class="w-full max-w-2xl lg:max-w-3xl text-center space-y-8 my-auto transition-all duration-300">
           
-          <!-- Warm Minimalist Greeting -->
-          <div class="text-center space-y-1.5 sm:space-y-2">
-            <div class="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-secondary-container/60 text-secondary mb-1 border border-secondary/20 shadow-subtle-elevated">
-              <span class="material-symbols-outlined text-[22px] sm:text-[26px]">yard</span>
+          <div class="space-y-4">
+            <div class="inline-flex w-12 h-12 rounded-xl bg-[#F0F5F2] text-km-green-accent items-center justify-center mb-2">
+              <span class="material-symbols-outlined text-[24px]">local_florist</span>
             </div>
-            <h1 class="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight text-on-surface">
-              Good morning, Rameshwar
-            </h1>
-            <p class="text-xs sm:text-sm md:text-base text-on-surface-variant font-normal max-w-md mx-auto">
-              What agronomic challenge can I help diagnose or solve today?
-            </p>
+            <h1 class="text-4xl font-serif text-gray-900 tracking-tight">Good morning, NAME</h1>
+            <p class="text-gray-500 text-sm max-w-sm mx-auto">What agronomic challenge can I help diagnose or solve today?</p>
           </div>
 
-          <!-- Hero Prompt Composer Card -->
-          <div class="w-full bg-surface-card rounded-2xl border border-outline-subtle/80 shadow-claude-input transition-all duration-200 focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/10 p-3 sm:p-4">
+          <!-- Composer -->
+          <div class="w-full bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-200 p-4 pb-3 text-left">
             
-            <!-- Image Attachment Preview in Hero -->
-            <div id="hero-img-preview" class="hidden items-center justify-between bg-surface-subtle p-2 rounded-xl mb-2 border border-outline-subtle">
+            <!-- Hidden Image Attachment Preview used by app.js -->
+            <div id="hero-img-preview" class="hidden items-center justify-between bg-gray-50 p-2 rounded-xl mb-2 border border-gray-200">
               <div class="flex items-center gap-2 overflow-hidden">
-                <img id="hero-img-thumb" class="w-9 h-9 sm:w-10 sm:h-10 object-cover rounded-lg" src="" alt="Thumbnail" />
-                <div class="flex flex-col truncate">
-                  <span id="hero-img-name" class="text-xs font-semibold text-primary truncate">Leaf_Photo.jpg</span>
-                  <span class="text-[10px] sm:text-[11px] text-secondary font-medium">Vision Scan Ready</span>
+                <img id="hero-img-thumb" class="w-10 h-10 object-cover rounded-lg" src="" alt="Thumbnail" />
+                <div class="flex flex-col text-left truncate">
+                  <span id="hero-img-name" class="text-xs font-semibold text-km-text-main truncate">Leaf_Photo.jpg</span>
                 </div>
               </div>
-              <button onclick="removeAttachedImage()" class="p-1 text-on-surface-variant hover:text-on-surface rounded-full">
-                <span class="material-symbols-outlined text-[16px] sm:text-[18px]">close</span>
+              <button onclick="removeAttachedImage()" class="p-1 text-gray-400 hover:text-gray-600 rounded-full">
+                <span class="material-symbols-outlined text-[18px]">close</span>
               </button>
             </div>
 
-            <textarea id="agroQueryInput" class="w-full bg-transparent border-0 resize-none text-[14px] sm:text-base text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-0 leading-relaxed font-sans" placeholder="Ask about crop diagnostics, soil health, fertilizer dosages, or mandi rates..." rows="2" maxlength="500"></textarea>
+            <textarea id="agroQueryInput" class="w-full h-12 resize-none outline-none text-gray-800 placeholder-gray-400 text-[15px]" placeholder="Ask about crop diagnostics, soil health, fertilizer dosages, or mandi rates..."></textarea>
             
-            <div class="flex items-center justify-between pt-2 mt-2 border-t border-outline-subtle/50">
-              
-              <!-- Left attachment controls & Focus tools -->
-              <div class="flex items-center gap-1 sm:gap-2 flex-wrap">
+            <div class="flex items-center justify-between pt-2">
+              <div class="flex items-center gap-4 text-xs font-semibold text-gray-500">
                 <input type="file" id="file-input-photo" accept="image/*" class="hidden" onchange="handleImageSelection(event)" />
-                <button onclick="document.getElementById('file-input-photo').click()" class="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-subtle transition-colors cursor-pointer" title="Attach crop image for vision diagnosis" type="button">
-                  <span class="material-symbols-outlined text-[16px] sm:text-[18px]">add_a_photo</span>
-                  <span class="hidden sm:inline">Photo</span>
-                </button>
-                
-                <button onclick="document.getElementById('file-input-photo').click()" class="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-subtle transition-colors cursor-pointer" title="Attach soil report or lab sheet" type="button">
-                  <span class="material-symbols-outlined text-[16px] sm:text-[18px]">attach_file</span>
-                  <span class="hidden sm:inline">Report</span>
-                </button>
-                
-                <div class="h-4 w-px bg-outline-subtle mx-0.5 hidden sm:block"></div>
-                
-                <!-- Quick Focus Pill Selector -->
-                <button onclick="cycleFocusTool()" class="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-medium bg-surface-subtle hover:bg-secondary-container/50 text-on-surface-variant hover:text-primary transition-all border border-outline-subtle/60 cursor-pointer" type="button">
-                  <span class="text-xs" id="focus-icon">🌱</span>
-                  <span id="focus-label">Crop Advisory</span>
+                <button onclick="document.getElementById('file-input-photo').click()" class="flex items-center gap-1.5 hover:text-gray-800"><span class="material-symbols-outlined text-[18px]">photo_camera</span> Photo</button>
+                <button onclick="document.getElementById('file-input-photo').click()" class="flex items-center gap-1.5 hover:text-gray-800"><span class="material-symbols-outlined text-[18px]">attach_file</span> Report</button>
+                <div class="w-px h-4 bg-gray-200"></div>
+                <button onclick="cycleFocusTool()" class="flex items-center gap-1.5 px-3 py-1.5 bg-[#F9F9F6] rounded-full border border-gray-200 hover:bg-gray-50">
+                  <span id="focus-icon" class="text-km-green-accent material-symbols-outlined text-[14px]">eco</span> <span id="focus-label">Crop Advisory</span>
                 </button>
               </div>
-
-              <!-- Right Controls: Voice & Send Button -->
-              <div class="flex items-center gap-1 sm:gap-2 shrink-0">
-                <button id="hero-mic-btn" onclick="toggleVoiceInput()" class="p-1.5 sm:p-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-subtle transition-colors cursor-pointer" title="Voice consultation" type="button">
-                  <span class="material-symbols-outlined text-[18px] sm:text-[20px]" id="hero-mic-icon">mic</span>
-                </button>
-                
-                <button id="hero-send-btn" onclick="submitUserQuery()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-primary text-white hover:bg-primary-hover flex items-center justify-center transition-all shadow-sm active:scale-95 group cursor-pointer" title="Send query" type="button">
-                  <span class="material-symbols-outlined text-[17px] sm:text-[19px] group-hover:-translate-y-0.5 transition-transform">arrow_upward</span>
+              <div class="flex items-center gap-3">
+                <button onclick="toggleVoiceInput()" class="text-gray-400 hover:text-gray-600"><span id="hero-mic-icon" class="material-symbols-outlined text-[20px]">mic</span></button>
+                <button onclick="submitUserQuery()" class="w-8 h-8 rounded-full bg-[#0F3523] text-white flex items-center justify-center hover:bg-km-green-dark transition-transform active:scale-95">
+                  <span class="material-symbols-outlined text-[18px]">arrow_upward</span>
                 </button>
               </div>
-
             </div>
           </div>
 
-          <!-- 4 Minimalist Prompt Starter Cards (1 col on mobile, 2 col on desktop) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 pt-1">
-            <button onclick="useSuggestedQuery('My wheat crop leaves are turning yellow with pale stripes. How do I differentiate between nitrogen deficiency and yellow rust?')" class="group flex items-start gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-xl bg-surface-card hover:bg-surface-subtle border border-outline-subtle/70 hover:border-secondary/30 transition-all text-left shadow-subtle-elevated cursor-pointer" type="button">
-              <span class="material-symbols-outlined text-[18px] sm:text-[20px] text-secondary mt-0.5 shrink-0 group-hover:scale-110 transition-transform">pest_control</span>
+          <!-- Starter Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left pt-2">
+            <button onclick="useSuggestedQuery('My wheat crop leaves are turning yellow with pale stripes. How do I differentiate between nitrogen deficiency and yellow rust?')" class="p-4 rounded-xl border border-gray-200 bg-white hover:border-km-green-accent/30 transition-colors flex gap-3 text-left">
+              <span class="material-symbols-outlined text-km-green-accent text-[20px] shrink-0">pest_control</span>
               <div class="min-w-0">
-                <div class="text-xs font-semibold text-on-surface group-hover:text-primary">Diagnose yellowing leaves in wheat</div>
-                <div class="text-[11px] sm:text-[12px] text-on-surface-variant/80 truncate">Identify nitrogen deficiency vs. rust symptom</div>
+                <div class="text-sm font-semibold text-gray-800 truncate">Diagnose yellowing leaves in wheat</div>
+                <div class="text-xs text-gray-400 mt-0.5 truncate">Identify nitrogen deficiency vs. rust symptom</div>
               </div>
             </button>
-            
-            <button onclick="useSuggestedQuery('What is the optimal split application dosage of Urea and Zinc for Basmati paddy during tillering?')" class="group flex items-start gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-xl bg-surface-card hover:bg-surface-subtle border border-outline-subtle/70 hover:border-secondary/30 transition-all text-left shadow-subtle-elevated cursor-pointer" type="button">
-              <span class="material-symbols-outlined text-[18px] sm:text-[20px] text-secondary mt-0.5 shrink-0 group-hover:scale-110 transition-transform">science</span>
+            <button onclick="useSuggestedQuery('What is the optimal split application dosage of Urea and Zinc for Basmati paddy during tillering?')" class="p-4 rounded-xl border border-gray-200 bg-white hover:border-km-green-accent/30 transition-colors flex gap-3 text-left">
+              <span class="material-symbols-outlined text-km-green-accent text-[20px] shrink-0">science</span>
               <div class="min-w-0">
-                <div class="text-xs font-semibold text-on-surface group-hover:text-primary">Optimal NPK split for paddy tillering</div>
-                <div class="text-[11px] sm:text-[12px] text-on-surface-variant/80 truncate">Dosage per acre for Basmati &amp; medium duration</div>
+                <div class="text-sm font-semibold text-gray-800 truncate">Optimal NPK split for paddy tillering</div>
+                <div class="text-xs text-gray-400 mt-0.5 truncate">Dosage per acre for Basmati & medium duration</div>
               </div>
             </button>
-            
-            <button onclick="useSuggestedQuery('What is the 7-day rainfall forecast and safe spraying window in Chittoor, Andhra Pradesh?')" class="group flex items-start gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-xl bg-surface-card hover:bg-surface-subtle border border-outline-subtle/70 hover:border-secondary/30 transition-all text-left shadow-subtle-elevated cursor-pointer" type="button">
-              <span class="material-symbols-outlined text-[18px] sm:text-[20px] text-secondary mt-0.5 shrink-0 group-hover:scale-110 transition-transform">thunderstorm</span>
+            <button onclick="useSuggestedQuery('What is the 7-day rainfall forecast and safe spraying window in Chittoor, Andhra Pradesh?')" class="p-4 rounded-xl border border-gray-200 bg-white hover:border-km-green-accent/30 transition-colors flex gap-3 text-left">
+              <span class="material-symbols-outlined text-km-green-accent text-[20px] shrink-0">thunderstorm</span>
               <div class="min-w-0">
-                <div class="text-xs font-semibold text-on-surface group-hover:text-primary">7-day rain alert &amp; safe spray window</div>
-                <div class="text-[11px] sm:text-[12px] text-on-surface-variant/80 truncate">Chittoor weather forecast and humidity spikes</div>
+                <div class="text-sm font-semibold text-gray-800 truncate">7-day rain alert & safe spray window</div>
+                <div class="text-xs text-gray-400 mt-0.5 truncate">Chittoor weather forecast and humidity spikes</div>
               </div>
             </button>
-            
-            <button onclick="useSuggestedQuery('What are today modal APMC mandi arrival prices and 7-day trend forecasts for tomato and cotton?')" class="group flex items-start gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-xl bg-surface-card hover:bg-surface-subtle border border-outline-subtle/70 hover:border-secondary/30 transition-all text-left shadow-subtle-elevated cursor-pointer" type="button">
-              <span class="material-symbols-outlined text-[18px] sm:text-[20px] text-secondary mt-0.5 shrink-0 group-hover:scale-110 transition-transform">storefront</span>
+            <button onclick="useSuggestedQuery('What are today modal APMC mandi arrival prices and 7-day trend forecasts for tomato and cotton?')" class="p-4 rounded-xl border border-gray-200 bg-white hover:border-km-green-accent/30 transition-colors flex gap-3 text-left">
+              <span class="material-symbols-outlined text-km-green-accent text-[20px] shrink-0">storefront</span>
               <div class="min-w-0">
-                <div class="text-xs font-semibold text-on-surface group-hover:text-primary">Latest APMC mandi rates for tomato &amp; cotton</div>
-                <div class="text-[11px] sm:text-[12px] text-on-surface-variant/80 truncate">Daily arrivals and average trade prices today</div>
+                <div class="text-sm font-semibold text-gray-800 truncate">Latest APMC mandi rates for tomato & cotton</div>
+                <div class="text-xs text-gray-400 mt-0.5 truncate">Daily arrivals and average trade prices today</div>
               </div>
             </button>
           </div>
 
-          <!-- Subtle Footer Disclaimer -->
-          <div class="pt-2 text-center">
-            <p class="text-[10px] sm:text-[11px] text-on-surface-variant/60 flex items-center justify-center gap-1.5 px-2">
-              <span class="material-symbols-outlined text-[14px] text-secondary shrink-0">verified</span>
-              <span>KrishiMitra agronomic advice is powered by ICAR research guidelines.</span>
-            </p>
+          <!-- Disclaimer -->
+          <div class="text-[11px] text-gray-400 flex items-center justify-center gap-1.5 pt-4">
+            <span class="material-symbols-outlined text-[14px] text-km-green-accent">verified</span>
+            KrishiMitra agronomic advice is powered by ICAR research guidelines. Confirm field-critical dosage with local KVK experts.
           </div>
 
         </div>
 
-        <!-- Active Chat Message Stream -->
-        <div id="chat-stream" class="w-full max-w-2xl lg:max-w-3xl flex-col space-y-4 sm:space-y-6 pb-36 hidden">
-          <!-- Dynamic chat messages injected here -->
+        <!-- Active Chat Stream (Hidden initially) -->
+        <div id="chat-stream" class="w-full max-w-2xl lg:max-w-3xl flex-col space-y-6 pb-36 hidden text-left mt-4">
         </div>
 
-      </main>
+      </div>
 
-      <!-- Floating Bottom Dock (Only Visible During Active Chat Stream) -->
-      <div id="floating-dock" class="absolute bottom-0 left-0 right-0 p-2.5 sm:p-4 bg-gradient-to-t from-surface via-surface/95 to-transparent hidden z-20 safe-bottom">
+      <!-- Floating Bottom Dock (Hidden initially) -->
+      <div id="floating-dock" class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#FCFCFC] via-[#FCFCFC]/95 to-transparent hidden z-20">
         <div class="max-w-2xl lg:max-w-3xl mx-auto">
-          <div class="w-full bg-surface-card rounded-xl sm:rounded-2xl border border-outline-subtle shadow-claude-input focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/10 p-2 sm:p-3 flex items-center gap-1.5 sm:gap-2">
-            
-            <button onclick="document.getElementById('file-input-photo').click()" class="p-1.5 sm:p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-subtle rounded-lg sm:rounded-xl transition-colors cursor-pointer shrink-0" title="Attach photo">
-              <span class="material-symbols-outlined text-[18px] sm:text-[20px]">add_a_photo</span>
+          <div class="w-full bg-white rounded-2xl border border-gray-200 shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-3 flex items-center gap-2">
+            <button onclick="document.getElementById('file-input-photo').click()" class="p-2 text-gray-400 hover:text-gray-600 rounded-xl transition-colors shrink-0">
+              <span class="material-symbols-outlined text-[20px]">add_a_photo</span>
             </button>
-
-            <textarea id="dockQueryInput" class="flex-1 bg-transparent border-0 resize-none text-[13px] sm:text-[15px] text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-0 leading-relaxed font-sans max-h-24 sm:max-h-28" placeholder="Ask follow-up questions..." rows="1"></textarea>
-
-            <button id="dock-mic-btn" onclick="toggleVoiceInput()" class="p-1.5 sm:p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-subtle rounded-lg sm:rounded-xl transition-colors cursor-pointer shrink-0" title="Voice Input">
-              <span class="material-symbols-outlined text-[18px] sm:text-[20px]" id="dock-mic-icon">mic</span>
+            <textarea id="dockQueryInput" class="flex-1 bg-transparent border-0 resize-none text-[15px] text-gray-800 placeholder-gray-400 focus:outline-none max-h-28" placeholder="Ask follow-up questions..." rows="1"></textarea>
+            <button onclick="toggleVoiceInput()" class="p-2 text-gray-400 hover:text-gray-600 rounded-xl transition-colors shrink-0">
+              <span id="dock-mic-icon" class="material-symbols-outlined text-[20px]">mic</span>
             </button>
-
-            <button onclick="submitDockQuery()" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-primary text-white hover:bg-primary-hover flex items-center justify-center transition-all shadow-sm active:scale-95 cursor-pointer shrink-0" title="Send">
-              <span class="material-symbols-outlined text-[16px] sm:text-[18px]">arrow_upward</span>
+            <button onclick="submitDockQuery()" class="w-8 h-8 rounded-xl bg-[#0F3523] text-white hover:bg-km-green-dark flex items-center justify-center transition-all shrink-0">
+              <span class="material-symbols-outlined text-[18px]">arrow_upward</span>
             </button>
           </div>
-          <p class="text-[9px] sm:text-[10px] text-center text-on-surface-variant/50 mt-1">
-            IBM Granite 3.0 RAG · Grounded in ICAR Agronomic Corpus
-          </p>
         </div>
       </div>
-
-    </div>
-
+    </main>
   </div>
 
   <!-- =========================================================================
-       MODAL 1: LOGIN & SIGN UP MODAL (RESPONSIVE)
+       MODAL 1: AUTH MODAL
   ========================================================================== -->
-  <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-primary/80 backdrop-blur-sm hidden p-3 sm:p-4">
-    <div class="relative z-10 w-full max-w-[400px] mx-auto bg-surface-container-lowest rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-all duration-300 border border-outline-subtle">
+  <div id="auth-modal" class="fixed inset-0 z-[60] flex items-center justify-center hidden">
+    <!-- Blurred Background -->
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=2070&auto=format&fit=crop'); filter: blur(12px) brightness(0.6) sepia(0.3) hue-rotate(80deg);"></div>
+    <div class="absolute inset-0 bg-[#162C21]/60 mix-blend-multiply"></div>
+    
+    <!-- Modal Content -->
+    <div class="relative z-10 bg-white rounded-[24px] w-full max-w-[400px] p-8 shadow-2xl flex flex-col items-center text-center">
+      <button onclick="closeAuthModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+
+      <div class="w-12 h-12 rounded-xl bg-[#092B1D] text-km-green-light flex items-center justify-center mb-4 mt-2 shadow-sm">
+        <span class="material-symbols-outlined text-[24px]">eco</span>
+      </div>
       
-      <!-- Top Bar -->
-      <div class="flex items-center justify-between px-4 sm:px-5 pt-4 pb-1">
-        <div class="flex items-center gap-2 text-xs text-on-surface-variant font-medium">
-          <span class="text-primary font-semibold cursor-pointer">English</span>
-          <span class="text-outline-variant">•</span>
-          <span class="hover:text-primary cursor-pointer transition-colors" onclick="changeLanguage('hi')">हिन्दी</span>
-          <span class="text-outline-variant">•</span>
-          <span class="hover:text-primary cursor-pointer transition-colors" onclick="changeLanguage('te')">తెలుగు</span>
+      <h2 class="text-xl font-bold text-[#092B1D] mb-1">Welcome to KrishiMitra</h2>
+      <p class="text-xs text-gray-500 mb-8 max-w-[240px]">Enter your mobile number to log in or create an account</p>
+
+      <div class="w-full flex h-12 rounded-xl bg-[#F4F5F0] overflow-hidden mb-4 border border-transparent focus-within:border-km-green-accent transition-colors">
+        <div class="flex items-center gap-2 px-4 border-r border-gray-200 bg-[#F4F5F0]">
+          <div class="w-5 h-3.5 bg-white flex flex-col overflow-hidden rounded-sm shadow-sm">
+            <div class="h-1/3 bg-[#FF9933]"></div>
+            <div class="h-1/3 bg-white flex items-center justify-center"><div class="w-1 h-1 rounded-full border-[0.5px] border-[#000080]"></div></div>
+            <div class="h-1/3 bg-[#138808]"></div>
+          </div>
+          <span class="text-sm font-semibold text-gray-800">+91</span>
         </div>
-        <button onclick="closeAuthModal()" aria-label="Close dialog" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant flex items-center justify-center transition-colors cursor-pointer" type="button">
-          <span class="material-symbols-outlined text-base sm:text-lg">close</span>
-        </button>
+        <input type="tel" id="farmer-phone-input" class="flex-1 bg-transparent border-0 px-4 text-sm focus:outline-none placeholder-gray-400" placeholder="Enter 10-digit mobile number" />
       </div>
 
-      <!-- Card Content -->
-      <div class="p-4 sm:p-6 pt-2 flex flex-col gap-3 sm:gap-4">
-        
-        <!-- Brand Icon & Header -->
-        <div class="flex flex-col items-center text-center pt-1">
-          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary flex items-center justify-center text-secondary-container shadow-md mb-2 sm:mb-3">
-            <span class="material-symbols-outlined text-xl sm:text-2xl" style="font-variation-settings: 'FILL' 1;">eco</span>
-          </div>
-          <h2 class="text-lg sm:text-xl font-bold text-primary tracking-tight">Welcome to KrishiMitra</h2>
-          <p class="text-xs text-on-surface-variant mt-0.5 max-w-xs">
-            Enter your mobile number to log in or create an account
-          </p>
-        </div>
+      <button id="btn-send-otp" onclick="handleSendOTP()" class="w-full h-12 rounded-xl bg-[#092B1D] text-white text-sm font-semibold flex items-center justify-center gap-2 hover:bg-[#11402c] transition-colors active:scale-95">
+        <span>Continue with OTP</span> <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+      </button>
 
-        <!-- Phone Input -->
-        <div class="flex flex-col gap-1 mt-1">
-          <div class="flex items-center rounded-xl bg-surface-container-low focus-within:bg-surface-container-lowest focus-within:ring-2 focus-within:ring-secondary/20 focus-within:border-secondary border border-outline-subtle transition-all h-11 sm:h-12 overflow-hidden">
-            <div class="h-full px-2.5 sm:px-3 bg-surface-container flex items-center gap-1.5 select-none border-r border-outline-subtle shrink-0">
-              <svg class="w-4 h-3 sm:w-5 sm:h-3.5 rounded-sm shadow-xs" fill="none" viewBox="0 0 30 20">
-                <rect fill="#FF9933" height="6.66" width="30"></rect>
-                <rect fill="#FFFFFF" height="6.66" width="30" y="6.66"></rect>
-                <rect fill="#138808" height="6.66" width="30" y="13.33"></rect>
-                <circle cx="15" cy="10" fill="none" r="2.2" stroke="#000080" stroke-width="0.8"></circle>
-              </svg>
-              <span class="text-xs font-bold text-primary">+91</span>
-            </div>
-            <input class="w-full h-full bg-transparent px-2.5 sm:px-3 text-xs sm:text-sm text-on-surface placeholder:text-outline focus:outline-none tracking-wide" id="farmer-phone-input" inputmode="numeric" maxlength="10" placeholder="Enter 10-digit mobile number" type="tel" />
-          </div>
-        </div>
-
-        <!-- Primary Action Button -->
-        <button onclick="handleSendOTP()" class="w-full h-10 sm:h-11 rounded-xl bg-primary hover:bg-primary-container text-on-primary text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition-transform active:scale-98 cursor-pointer" id="btn-send-otp" type="button">
-          <span>Continue with OTP</span>
-          <span class="material-symbols-outlined text-base">arrow_forward</span>
-        </button>
-
-        <!-- Divider -->
-        <div class="relative flex py-0.5 items-center">
-          <div class="flex-grow bg-surface-container-high h-[1px]"></div>
-          <span class="flex-shrink mx-3 text-[10px] text-outline uppercase tracking-wider font-semibold">or</span>
-          <div class="flex-grow bg-surface-container-high h-[1px]"></div>
-        </div>
-
-        <!-- Secondary Actions -->
-        <div class="flex flex-col gap-2">
-          <button onclick="showChatView(); closeAuthModal();" class="h-9 sm:h-10 px-3 rounded-xl bg-surface-container-low hover:bg-surface-container text-primary text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer" type="button">
-            <span class="material-symbols-outlined text-base text-secondary">psychology</span>
-            <span>Continue as Guest Farmer</span>
-          </button>
-        </div>
-
-        <!-- Terms Footer -->
-        <div class="pt-1 flex flex-col items-center text-center gap-1 text-[10px] sm:text-[11px] text-on-surface-variant">
-          <p class="text-outline max-w-xs leading-relaxed">
-            By continuing, you agree to our <a class="underline hover:text-primary" href="#">Terms</a> and <a class="underline hover:text-primary" href="#">Farmer Privacy Policy</a>.
-          </p>
-        </div>
-
+      <div class="w-full flex items-center gap-4 my-6 text-[10px] font-bold text-gray-300 uppercase tracking-widest">
+        <div class="h-px bg-gray-100 flex-1"></div>
+        OR
+        <div class="h-px bg-gray-100 flex-1"></div>
       </div>
+
+      <button onclick="showChatView(); closeAuthModal();" class="w-full h-12 rounded-xl bg-[#F4F5F0] text-[#092B1D] text-sm font-semibold flex items-center justify-center gap-2 hover:bg-[#e8e9e4] transition-colors mb-6">
+        <span class="material-symbols-outlined text-[16px]">lock</span> Continue with Password
+      </button>
+
+      <p class="text-[10px] text-gray-400 px-4 leading-relaxed">
+        By continuing, you agree to our <a href="#" class="underline hover:text-gray-600">Terms</a> and <a href="#" class="underline hover:text-gray-600">Farmer Privacy Policy</a>.
+      </p>
     </div>
   </div>
 
-  <!-- =========================================================================
-       MODAL 2: FIELD DEMO VIDEO MODAL (RESPONSIVE)
-  ========================================================================== -->
-  <div id="video-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-primary/80 backdrop-blur-sm hidden p-3 sm:p-4">
-    <div class="bg-surface rounded-2xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl relative border border-outline-subtle">
-      <div class="flex items-center justify-between pb-3">
-        <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-secondary text-[22px] sm:text-[24px]">play_circle</span>
-          <h3 class="text-sm sm:text-base md:text-lg font-bold text-primary truncate">KrishiMitra • Field Demo</h3>
-        </div>
-        <button class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-highest cursor-pointer shrink-0" onclick="document.getElementById('video-modal').classList.add('hidden')" type="button">
-          <span class="material-symbols-outlined text-base sm:text-lg">close</span>
-        </button>
+  <div id="video-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 hidden">
+    <!-- Simplistic video modal placeholder -->
+    <div class="bg-white rounded-xl p-6 max-w-lg w-full text-center relative">
+      <button onclick="document.getElementById('video-modal').classList.add('hidden')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+      <div class="w-16 h-16 mx-auto bg-[#092B1D] text-white rounded-full flex items-center justify-center mb-4">
+        <span class="material-symbols-outlined text-[32px]">play_arrow</span>
       </div>
-      
-      <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-surface-container flex items-center justify-center">
-        <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1BCq6FumvT421HTYh_BrLm4GNVNlIN8i4qB6F6KCqOmPs7CfN6BkxYpDS43vCSbkBlTM3wOVkhei8C3E9uFbVmbp2EHnVjD-OslwPHq1mIRApwLOPnlL4oXUJ3zIbrp8q9_MhLwrKh_9HglR9l3W5eeZcUmzFriS3TofpHYyzdTlYvwh_MZSlBV3dDFlKvD8NAPdmZixkW0I-6KjqZY7ibhFy-9Mi0jlaw5F11kwoel3Vp78MPnlt" alt="Video thumbnail" />
-        <button class="absolute w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-2xl hover:scale-110 transition-transform cursor-pointer" onclick="alert('Playing 2-minute field walkthrough with Hindi & Bengali subtitles...')" type="button">
-          <span class="material-symbols-outlined text-[28px] sm:text-[36px]">play_arrow</span>
-        </button>
-      </div>
-
-      <div class="pt-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 text-on-surface-variant text-[11px] sm:text-xs">
-        <span>Demonstrated on Xiaomi Redmi 9 under bright noon sunlight</span>
-        <button class="text-secondary font-bold hover:underline cursor-pointer" onclick="document.getElementById('video-modal').classList.add('hidden')" type="button">Close Preview</button>
-      </div>
+      <h3 class="text-lg font-bold text-gray-900 mb-2">Video Demonstration</h3>
+      <p class="text-gray-500 text-sm">The 2-minute field walkthrough with Hindi & Bengali subtitles will play here.</p>
     </div>
   </div>
 
-  <!-- JavaScript Controller -->
   <script src="js/app.js"></script>
 </body>
 </html>

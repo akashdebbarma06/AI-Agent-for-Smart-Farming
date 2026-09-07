@@ -10,6 +10,7 @@
     background-color: #f9faf5;
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
   }
 }
 
@@ -38,6 +39,15 @@
 
 .sidebar-scroll::-webkit-scrollbar-thumb:hover {
   background: #36423b;
+}
+
+/* Hide scrollbars on horizontal scroll containers */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Micro-Animations */
