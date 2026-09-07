@@ -502,10 +502,10 @@ async function processAIQuery(query) {
     const loadingElem = document.getElementById(loadingId);
     if (loadingElem) loadingElem.remove();
 
-    // Fallback Mock Knowledge Response
+    // Fallback Error Response
     appendParsedAIMessage(
-      `### Direct Answer\nBased on ICAR agronomy guidelines for your agro-climatic zone, apply integrated nutrient and pest management protocols to safeguard harvest yield.\n\n### Why This Matters / Agro Reasoning\nSoil moisture, balanced NPK split application, and vector suppression prevent irreversible root rot or leaf curl flare-ups during critical vegetative and flowering flushes.\n\n### What To Do (Protocol Steps)\n1. **Soil & Moisture Check:** Ensure field drainage is optimal and test soil electrical conductivity.\n2. **Targeted Application:** Apply bio-fertilizers or recommended ICAR-registered micronutrient blends during early morning or evening hours.\n3. **Monitoring:** Install pheromone or sticky traps across field margins.\n\n### Important Caution\nAlways verify exact chemical active ingredients with your local Krishi Vigyan Kendra (KVK) officer and adhere strictly to CIBRC Pre-Harvest Intervals (PHI).`,
-      ["ICAR Package of Practices", "CIBRC Guidelines 2024", "National Agronomy Portal"]
+      `**Connection Error:** Unable to reach the KrishiMitra AI server. Please check your internet connection and ensure the backend API is running.`,
+      []
     );
   } finally {
     isWaiting = false;
