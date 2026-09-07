@@ -8,8 +8,11 @@ POST /api/v1/chat
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, Request, status
+from typing import Optional
 
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+
+from backend.app.auth.firebase_auth import get_current_user
 from backend.app.models.chat import ChatRequest, ChatResponse
 from backend.app.utils.logger import get_logger
 
@@ -29,10 +32,15 @@ router = APIRouter(prefix="/chat", tags=["Chat"])
     ),
     status_code=status.HTTP_200_OK,
 )
-async def chat(request_body: ChatRequest, request: Request) -> ChatResponse:
+async def chat(
+    request_body: ChatRequest,
+    request: Request,
+    current_user: Optional[dict] = Depends(get_current_user),
+) -> ChatResponse:
     """Handle a single chat turn.
 
     - Validates the incoming question (3–500 chars, non-blank)
+    - Optionally verifies Firebase auth token (if provided)
     - Delegates to ChatService for RAG retrieval + Granite generation
     - Returns a structured ChatResponse
 
@@ -41,10 +49,12 @@ async def chat(request_body: ChatRequest, request: Request) -> ChatResponse:
     """
     chat_service = request.app.state.chat_service
 
+    user_id = current_user.get("uid", "anonymous") if current_user else "anonymous"
     logger.info(
-        "POST /chat — question length=%d, language=%s",
+        "POST /chat — question length=%d, language=%s, user=%s",
         len(request_body.question),
         request_body.language,
+        user_id,
     )
 
     try:
@@ -58,3 +68,4 @@ async def chat(request_body: ChatRequest, request: Request) -> ChatResponse:
         ) from exc
 
     return response
+

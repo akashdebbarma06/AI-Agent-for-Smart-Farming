@@ -28,7 +28,7 @@
             "km-text-muted": "#666666",
             "km-border": "#E5E5E5",
             
-            // App.js legacy class support fallbacks (since app.js injects some dynamic classes)
+            // App.js legacy class support fallbacks
             "primary": "#0D3C26",
             "primary-hover": "#0A2518",
             "primary-container": "#E8F0EB",
@@ -69,14 +69,52 @@
     }
     .typing-dot:nth-child(2) { animation-delay: 0.2s; }
     .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    /* OTP digit input styling */
+    .otp-digit {
+      width: 48px; height: 56px;
+      text-align: center; font-size: 22px; font-weight: 700;
+      border: 2px solid #E5E5E5; border-radius: 12px;
+      outline: none; background: #F9F9F6;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .otp-digit:focus {
+      border-color: #1A6B46;
+      box-shadow: 0 0 0 3px rgba(26,107,70,0.12);
+    }
+
+    /* Auth loading spinner */
+    @keyframes authSpin {
+      to { transform: rotate(360deg); }
+    }
+    .auth-spinner {
+      width: 32px; height: 32px;
+      border: 3px solid #E8F0EB;
+      border-top-color: #1A6B46;
+      border-radius: 50%;
+      animation: authSpin 0.7s linear infinite;
+    }
   </style>
 </head>
 <body class="font-sans antialiased">
 
   <!-- =========================================================================
+       AUTH LOADING OVERLAY (shown while checking auth state on load)
+  ========================================================================== -->
+  <div id="auth-loading-overlay" class="fixed inset-0 z-[100] bg-km-surface flex items-center justify-center">
+    <div class="flex flex-col items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-km-green-primary text-white flex items-center justify-center shadow-lg">
+        <span class="material-symbols-outlined text-[24px]">psychology</span>
+      </div>
+      <div class="auth-spinner"></div>
+      <p class="text-sm text-km-text-muted font-medium">Loading KrishiMitra AI...</p>
+    </div>
+  </div>
+
+  <!-- =========================================================================
        VIEW 1: LANDING PAGE
   ========================================================================== -->
-  <div id="landing-view" class="w-full min-h-screen flex flex-col transition-opacity duration-300">
+  <div id="landing-view" class="w-full min-h-screen flex flex-col transition-opacity duration-300 hidden">
 
     <!-- Top Navigation Bar -->
     <header class="w-full z-40 bg-km-surface pt-4 pb-4">
@@ -110,8 +148,8 @@
             </select>
             <span class="material-symbols-outlined text-[16px] absolute right-0 pointer-events-none">expand_more</span>
           </div>
-          <a href="#" onclick="openAuthModal(true); return false;" class="hidden sm:block text-sm font-semibold text-km-text-main hover:text-km-green-primary">Sign In</a>
-          <button onclick="showChatView()" type="button" class="px-5 py-2 rounded-full bg-km-green-dark text-white text-sm font-semibold hover:bg-km-green-primary transition-colors">
+          <a href="#" onclick="authGuardShowChat(); return false;" class="hidden sm:block text-sm font-semibold text-km-text-main hover:text-km-green-primary">Sign In</a>
+          <button onclick="authGuardShowChat()" type="button" class="px-5 py-2 rounded-full bg-km-green-dark text-white text-sm font-semibold hover:bg-km-green-primary transition-colors">
             Get Started
           </button>
         </div>
@@ -139,9 +177,9 @@
             </p>
 
             <div class="flex items-center gap-4 pt-2">
-              <button onclick="showChatView()" type="button" class="flex items-center gap-2 px-6 py-3 rounded-xl bg-km-green-dark text-white font-semibold hover:bg-km-green-primary transition-all shadow-sm">
+              <button onclick="authGuardShowChat()" type="button" class="flex items-center gap-2 px-6 py-3 rounded-xl bg-km-green-dark text-white font-semibold hover:bg-km-green-primary transition-all shadow-sm">
                 <span class="material-symbols-outlined text-[20px]">psychology</span>
-                Try AI Demo
+                Get Started Free
               </button>
               <button onclick="document.getElementById('video-modal').classList.remove('hidden')" type="button" class="flex items-center gap-2 px-6 py-3 rounded-xl bg-km-green-light text-km-green-primary font-semibold hover:bg-[#d8e6df] transition-all">
                 <span class="material-symbols-outlined text-[20px]">play_circle</span>
@@ -187,67 +225,49 @@
           </div>
           
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Card 1 -->
             <div class="p-8 rounded-2xl bg-white shadow-sm flex flex-col justify-between border border-km-border/50">
               <div>
-                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5">
-                  <span class="material-symbols-outlined text-[20px]">photo_camera</span>
-                </div>
+                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5"><span class="material-symbols-outlined text-[20px]">photo_camera</span></div>
                 <h3 class="text-lg font-bold text-km-text-main mb-2">Pest & Disease Scan</h3>
                 <p class="text-sm text-km-text-muted leading-relaxed">Snap any affected crop leaf or stem. AI instantly identifies rusts, blights, and borers with exact ICAR remedies.</p>
               </div>
               <div class="text-[11px] font-bold text-km-green-accent uppercase tracking-wide mt-6">5 Sec Detection</div>
             </div>
-            <!-- Card 2 -->
             <div class="p-8 rounded-2xl bg-white shadow-sm flex flex-col justify-between border border-km-border/50">
               <div>
-                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5">
-                  <span class="material-symbols-outlined text-[20px]">science</span>
-                </div>
+                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5"><span class="material-symbols-outlined text-[20px]">science</span></div>
                 <h3 class="text-lg font-bold text-km-text-main mb-2">Fertilizer Calculator</h3>
                 <p class="text-sm text-km-text-muted leading-relaxed">Eliminate excess urea wastage with precise split-dose N-P-K recommendations tailored to crop stage and soil card.</p>
               </div>
               <div class="text-[11px] font-bold text-km-green-accent uppercase tracking-wide mt-6">Save ₹3,200/Acre</div>
             </div>
-            <!-- Card 3 -->
             <div class="p-8 rounded-2xl bg-white shadow-sm flex flex-col justify-between border border-km-border/50">
               <div>
-                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5">
-                  <span class="material-symbols-outlined text-[20px]">thunderstorm</span>
-                </div>
+                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5"><span class="material-symbols-outlined text-[20px]">thunderstorm</span></div>
                 <h3 class="text-lg font-bold text-km-text-main mb-2">Hyper-Local Weather</h3>
                 <p class="text-sm text-km-text-muted leading-relaxed">Integrated with IMD radar data for spray window alerts, wind speed warnings, and frost risk forecasts.</p>
               </div>
               <div class="text-[11px] font-bold text-km-green-accent uppercase tracking-wide mt-6">48-Hr Rain Radar</div>
             </div>
-            <!-- Card 4 -->
             <div class="p-8 rounded-2xl bg-white shadow-sm flex flex-col justify-between border border-km-border/50">
               <div>
-                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5">
-                  <span class="material-symbols-outlined text-[20px]">query_stats</span>
-                </div>
+                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5"><span class="material-symbols-outlined text-[20px]">query_stats</span></div>
                 <h3 class="text-lg font-bold text-km-text-main mb-2">Mandi Market Trends</h3>
                 <p class="text-sm text-km-text-muted leading-relaxed">Real-time modal pricing across nearby APMC mandis to help plan harvest timing and optimize freight dispatch.</p>
               </div>
               <div class="text-[11px] font-bold text-km-green-accent uppercase tracking-wide mt-6">Live e-NAM Benchmark</div>
             </div>
-            <!-- Card 5 -->
             <div class="p-8 rounded-2xl bg-white shadow-sm flex flex-col justify-between border border-km-border/50">
               <div>
-                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5">
-                  <span class="material-symbols-outlined text-[20px]">mic</span>
-                </div>
+                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5"><span class="material-symbols-outlined text-[20px]">mic</span></div>
                 <h3 class="text-lg font-bold text-km-text-main mb-2">Multilingual Voice</h3>
                 <p class="text-sm text-km-text-muted leading-relaxed">Speak hands-free in Hindi, Bengali, Telugu, Punjabi, Marathi, or Kannada and receive natural speech responses.</p>
               </div>
               <div class="text-[11px] font-bold text-km-green-accent uppercase tracking-wide mt-6">Speech-To-Speech Engine</div>
             </div>
-            <!-- Card 6 -->
             <div class="p-8 rounded-2xl bg-white shadow-sm flex flex-col justify-between border border-km-border/50">
               <div>
-                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5">
-                  <span class="material-symbols-outlined text-[20px]">contact_phone</span>
-                </div>
+                <div class="w-10 h-10 rounded-xl bg-km-green-light flex items-center justify-center text-km-green-primary mb-5"><span class="material-symbols-outlined text-[20px]">contact_phone</span></div>
                 <h3 class="text-lg font-bold text-km-text-main mb-2">KVK Escalation</h3>
                 <p class="text-sm text-km-text-muted leading-relaxed">Unresolved anomalies seamlessly transfer to Krishi Vigyan Kendra scientists and Kisan Call Centre experts.</p>
               </div>
@@ -291,7 +311,7 @@
               <h2 class="text-3xl font-bold mb-4">Ready to make informed farm decisions?</h2>
               <p class="text-km-green-light/80">Protect crops from diseases, optimize fertilizer inputs, and check real-time market prices. Free forever, no app download required.</p>
             </div>
-            <button onclick="showChatView()" type="button" class="px-8 py-4 rounded-xl bg-[#86E4B1] text-km-green-dark font-bold hover:bg-[#6FD89F] transition-colors whitespace-nowrap">
+            <button onclick="authGuardShowChat()" type="button" class="px-8 py-4 rounded-xl bg-[#86E4B1] text-km-green-dark font-bold hover:bg-[#6FD89F] transition-colors whitespace-nowrap">
               Get Started Free
             </button>
           </div>
@@ -347,19 +367,26 @@
         </button>
       </div>
 
-      <!-- Sidebar History Area (used by app.js to populate history if implemented, empty for now as requested) -->
+      <!-- Sidebar History Area -->
       <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         <!-- History items could go here -->
       </div>
 
-      <div class="mt-auto p-4 flex items-center gap-3 border-t border-white/10 cursor-pointer hover:bg-white/5 transition-colors" onclick="openAuthModal(true)">
-        <div class="w-8 h-8 rounded-full bg-[#232F29] flex items-center justify-center text-xs font-bold text-km-green-accent">
-          RP
+      <!-- User Profile & Logout -->
+      <div class="mt-auto border-t border-white/10">
+        <div class="p-4 flex items-center gap-3">
+          <div id="sidebar-user-initials" class="w-8 h-8 rounded-full bg-[#232F29] flex items-center justify-center text-xs font-bold text-km-green-accent">
+            KM
+          </div>
+          <div class="flex flex-col flex-1 min-w-0">
+            <span id="sidebar-user-name" class="text-xs font-semibold truncate">Farmer</span>
+            <span id="sidebar-user-location" class="text-[10px] text-gray-400 truncate">Location</span>
+          </div>
         </div>
-        <div class="flex flex-col">
-          <span class="text-xs font-semibold">NAME NAME</span>
-          <span id="sidebar-status-text" class="text-[10px] text-km-green-accent">Farmer Pro Plan</span>
-        </div>
+        <button onclick="handleLogout()" class="w-full flex items-center gap-2 px-4 py-3 text-xs text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+          <span class="material-symbols-outlined text-[16px]">logout</span>
+          Sign Out
+        </button>
       </div>
     </aside>
 
@@ -402,7 +429,7 @@
             <div class="inline-flex w-12 h-12 rounded-xl bg-[#F0F5F2] text-km-green-accent items-center justify-center mb-2">
               <span class="material-symbols-outlined text-[24px]">local_florist</span>
             </div>
-            <h1 class="text-4xl font-serif text-gray-900 tracking-tight">Good morning, NAME</h1>
+            <h1 class="text-4xl font-serif text-gray-900 tracking-tight">Good morning, Farmer</h1>
             <p class="text-gray-500 text-sm max-w-sm mx-auto">What agronomic challenge can I help diagnose or solve today?</p>
           </div>
 
@@ -510,60 +537,158 @@
   </div>
 
   <!-- =========================================================================
-       MODAL 1: AUTH MODAL
+       AUTH MODAL (Phone → OTP → Onboarding — all steps)
   ========================================================================== -->
   <div id="auth-modal" class="fixed inset-0 z-[60] flex items-center justify-center hidden">
     <!-- Blurred Background -->
     <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=2070&auto=format&fit=crop'); filter: blur(12px) brightness(0.6) sepia(0.3) hue-rotate(80deg);"></div>
     <div class="absolute inset-0 bg-[#162C21]/60 mix-blend-multiply"></div>
     
-    <!-- Modal Content -->
-    <div class="relative z-10 bg-white rounded-[24px] w-full max-w-[400px] p-8 shadow-2xl flex flex-col items-center text-center">
-      <button onclick="closeAuthModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
-        <span class="material-symbols-outlined text-[18px]">close</span>
-      </button>
+    <!-- Modal Content Container -->
+    <div class="relative z-10 bg-white rounded-[24px] w-full max-w-[420px] mx-4 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
 
-      <div class="w-12 h-12 rounded-xl bg-[#092B1D] text-km-green-light flex items-center justify-center mb-4 mt-2 shadow-sm">
-        <span class="material-symbols-outlined text-[24px]">eco</span>
-      </div>
-      
-      <h2 class="text-xl font-bold text-[#092B1D] mb-1">Welcome to KrishiMitra</h2>
-      <p class="text-xs text-gray-500 mb-8 max-w-[240px]">Enter your mobile number to log in or create an account</p>
+      <!-- ── STEP 1: Phone Number ────────────────────────────── -->
+      <div id="auth-step-phone" class="p-8 flex flex-col items-center text-center">
 
-      <div class="w-full flex h-12 rounded-xl bg-[#F4F5F0] overflow-hidden mb-4 border border-transparent focus-within:border-km-green-accent transition-colors">
-        <div class="flex items-center gap-2 px-4 border-r border-gray-200 bg-[#F4F5F0]">
-          <div class="w-5 h-3.5 bg-white flex flex-col overflow-hidden rounded-sm shadow-sm">
-            <div class="h-1/3 bg-[#FF9933]"></div>
-            <div class="h-1/3 bg-white flex items-center justify-center"><div class="w-1 h-1 rounded-full border-[0.5px] border-[#000080]"></div></div>
-            <div class="h-1/3 bg-[#138808]"></div>
-          </div>
-          <span class="text-sm font-semibold text-gray-800">+91</span>
+        <div class="w-12 h-12 rounded-xl bg-[#092B1D] text-km-green-light flex items-center justify-center mb-4 mt-2 shadow-sm">
+          <span class="material-symbols-outlined text-[24px]">eco</span>
         </div>
-        <input type="tel" id="farmer-phone-input" class="flex-1 bg-transparent border-0 px-4 text-sm focus:outline-none placeholder-gray-400" placeholder="Enter 10-digit mobile number" />
+        
+        <h2 class="text-xl font-bold text-[#092B1D] mb-1">Welcome to KrishiMitra</h2>
+        <p class="text-xs text-gray-500 mb-6 max-w-[260px]">Enter your mobile number to receive a one-time verification code</p>
+
+        <!-- Error/Success Messages -->
+        <div id="auth-error-message" class="hidden w-full mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium text-left flex items-start gap-2">
+        </div>
+        <div id="auth-success-message" class="hidden w-full mb-4 p-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-xs font-medium text-left">
+        </div>
+
+        <div class="w-full flex h-12 rounded-xl bg-[#F4F5F0] overflow-hidden mb-4 border border-transparent focus-within:border-km-green-accent transition-colors">
+          <div class="flex items-center gap-2 px-4 border-r border-gray-200 bg-[#F4F5F0]">
+            <div class="w-5 h-3.5 bg-white flex flex-col overflow-hidden rounded-sm shadow-sm">
+              <div class="h-1/3 bg-[#FF9933]"></div>
+              <div class="h-1/3 bg-white flex items-center justify-center"><div class="w-1 h-1 rounded-full border-[0.5px] border-[#000080]"></div></div>
+              <div class="h-1/3 bg-[#138808]"></div>
+            </div>
+            <span class="text-sm font-semibold text-gray-800">+91</span>
+          </div>
+          <input type="tel" id="farmer-phone-input" maxlength="10" inputmode="numeric" pattern="[0-9]*" class="flex-1 bg-transparent border-0 px-4 text-sm focus:outline-none placeholder-gray-400" placeholder="Enter 10-digit mobile number" onkeydown="if(event.key==='Enter') handleSendOTP()" />
+        </div>
+
+        <button id="btn-send-otp" onclick="handleSendOTP()" class="w-full h-12 rounded-xl bg-[#092B1D] text-white text-sm font-semibold flex items-center justify-center gap-2 hover:bg-[#11402c] transition-colors active:scale-[0.98]">
+          <span>Continue with OTP</span> <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+        </button>
+
+        <p class="text-[10px] text-gray-400 px-4 leading-relaxed mt-6">
+          By continuing, you agree to our <a href="#" class="underline hover:text-gray-600">Terms of Service</a> and <a href="#" class="underline hover:text-gray-600">Farmer Privacy Policy</a>.
+        </p>
       </div>
 
-      <button id="btn-send-otp" onclick="handleSendOTP()" class="w-full h-12 rounded-xl bg-[#092B1D] text-white text-sm font-semibold flex items-center justify-center gap-2 hover:bg-[#11402c] transition-colors active:scale-95">
-        <span>Continue with OTP</span> <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-      </button>
+      <!-- ── STEP 2: OTP Verification ────────────────────────── -->
+      <div id="auth-step-otp" class="p-8 flex flex-col items-center text-center hidden">
+        
+        <div class="w-12 h-12 rounded-xl bg-[#092B1D] text-km-green-light flex items-center justify-center mb-4 mt-2 shadow-sm">
+          <span class="material-symbols-outlined text-[24px]">lock</span>
+        </div>
+        
+        <h2 class="text-xl font-bold text-[#092B1D] mb-1">Verify OTP</h2>
+        <p class="text-xs text-gray-500 mb-1">Enter the 6-digit code sent to</p>
+        <p id="otp-phone-display" class="text-sm font-bold text-[#092B1D] mb-6">+91 XXXXX XXXXX</p>
 
-      <div class="w-full flex items-center gap-4 my-6 text-[10px] font-bold text-gray-300 uppercase tracking-widest">
-        <div class="h-px bg-gray-100 flex-1"></div>
-        OR
-        <div class="h-px bg-gray-100 flex-1"></div>
+        <!-- Error/Success Messages (reuses same element via auth.js) -->
+
+        <!-- 6-Digit OTP Input -->
+        <div class="flex items-center gap-2 mb-6" onpaste="handleOTPPaste(event)">
+          <input type="tel" id="otp-digit-1" maxlength="1" inputmode="numeric" class="otp-digit" oninput="handleOTPInput(this, 1)" onkeydown="handleOTPKeydown(event, 1)" />
+          <input type="tel" id="otp-digit-2" maxlength="1" inputmode="numeric" class="otp-digit" oninput="handleOTPInput(this, 2)" onkeydown="handleOTPKeydown(event, 2)" />
+          <input type="tel" id="otp-digit-3" maxlength="1" inputmode="numeric" class="otp-digit" oninput="handleOTPInput(this, 3)" onkeydown="handleOTPKeydown(event, 3)" />
+          <div class="w-3 h-0.5 bg-gray-300 mx-1"></div>
+          <input type="tel" id="otp-digit-4" maxlength="1" inputmode="numeric" class="otp-digit" oninput="handleOTPInput(this, 4)" onkeydown="handleOTPKeydown(event, 4)" />
+          <input type="tel" id="otp-digit-5" maxlength="1" inputmode="numeric" class="otp-digit" oninput="handleOTPInput(this, 5)" onkeydown="handleOTPKeydown(event, 5)" />
+          <input type="tel" id="otp-digit-6" maxlength="1" inputmode="numeric" class="otp-digit" oninput="handleOTPInput(this, 6)" onkeydown="handleOTPKeydown(event, 6)" />
+        </div>
+
+        <button id="btn-verify-otp" onclick="handleVerifyOTP()" class="w-full h-12 rounded-xl bg-[#092B1D] text-white text-sm font-semibold flex items-center justify-center gap-2 hover:bg-[#11402c] transition-colors active:scale-[0.98] mb-4">
+          <span>Verify & Continue</span> <span class="material-symbols-outlined text-[18px]">check</span>
+        </button>
+
+        <div class="flex items-center justify-between w-full text-xs text-gray-500">
+          <button id="btn-resend-otp" onclick="handleResendOTP()" class="hover:text-km-green-primary font-semibold">
+            Resend OTP <span id="resend-timer" class="text-gray-400"></span>
+          </button>
+          <button onclick="handleChangeNumber()" class="hover:text-km-green-primary font-semibold">Change Number</button>
+        </div>
       </div>
 
-      <button onclick="showChatView(); closeAuthModal();" class="w-full h-12 rounded-xl bg-[#F4F5F0] text-[#092B1D] text-sm font-semibold flex items-center justify-center gap-2 hover:bg-[#e8e9e4] transition-colors mb-6">
-        <span class="material-symbols-outlined text-[16px]">lock</span> Continue with Password
-      </button>
+      <!-- ── STEP 3: Onboarding ──────────────────────────────── -->
+      <div id="auth-step-onboarding" class="p-8 flex flex-col items-center text-center hidden">
+        
+        <div class="w-12 h-12 rounded-xl bg-[#092B1D] text-km-green-light flex items-center justify-center mb-4 mt-2 shadow-sm">
+          <span class="material-symbols-outlined text-[24px]">person_add</span>
+        </div>
+        
+        <h2 class="text-xl font-bold text-[#092B1D] mb-1">Complete Your Profile</h2>
+        <p class="text-xs text-gray-500 mb-6 max-w-[280px]">Help us personalise your agronomic advisory experience</p>
 
-      <p class="text-[10px] text-gray-400 px-4 leading-relaxed">
-        By continuing, you agree to our <a href="#" class="underline hover:text-gray-600">Terms</a> and <a href="#" class="underline hover:text-gray-600">Farmer Privacy Policy</a>.
-      </p>
+        <div class="w-full space-y-3 text-left">
+          <!-- Name -->
+          <div>
+            <label class="text-xs font-semibold text-gray-600 mb-1 block">Full Name <span class="text-red-400">*</span></label>
+            <input type="text" id="onboard-name" class="w-full h-11 px-4 rounded-xl bg-[#F4F5F0] border border-transparent focus:border-km-green-accent outline-none text-sm placeholder-gray-400" placeholder="e.g. Rajesh Patel" />
+          </div>
+
+          <!-- Age -->
+          <div>
+            <label class="text-xs font-semibold text-gray-600 mb-1 block">Age <span class="text-red-400">*</span></label>
+            <input type="number" id="onboard-age" min="13" max="120" class="w-full h-11 px-4 rounded-xl bg-[#F4F5F0] border border-transparent focus:border-km-green-accent outline-none text-sm placeholder-gray-400" placeholder="e.g. 35" />
+          </div>
+
+          <!-- State -->
+          <div>
+            <label class="text-xs font-semibold text-gray-600 mb-1 block">State <span class="text-red-400">*</span></label>
+            <select id="onboard-state" onchange="onStateChange()" class="w-full h-11 px-4 rounded-xl bg-[#F4F5F0] border border-transparent focus:border-km-green-accent outline-none text-sm text-gray-700 cursor-pointer">
+              <option value="">Select your state</option>
+            </select>
+          </div>
+
+          <!-- District -->
+          <div>
+            <label class="text-xs font-semibold text-gray-600 mb-1 block">District <span class="text-red-400">*</span></label>
+            <select id="onboard-district" disabled class="w-full h-11 px-4 rounded-xl bg-[#F4F5F0] border border-transparent focus:border-km-green-accent outline-none text-sm text-gray-700 cursor-pointer disabled:opacity-50">
+              <option value="">Select your district</option>
+            </select>
+          </div>
+
+          <!-- Preferred Language -->
+          <div>
+            <label class="text-xs font-semibold text-gray-600 mb-1 block">Preferred Language</label>
+            <select id="onboard-language" class="w-full h-11 px-4 rounded-xl bg-[#F4F5F0] border border-transparent focus:border-km-green-accent outline-none text-sm text-gray-700 cursor-pointer">
+              <option value="en">English</option>
+              <option value="hi">हिन्दी (Hindi)</option>
+            </select>
+          </div>
+
+          <!-- Terms & Conditions -->
+          <div class="flex items-start gap-3 pt-2">
+            <input type="checkbox" id="onboard-terms" class="mt-0.5 w-4 h-4 rounded border-gray-300 text-km-green-primary focus:ring-km-green-accent cursor-pointer" />
+            <label for="onboard-terms" class="text-xs text-gray-500 leading-relaxed cursor-pointer">
+              I agree to the <a href="#" class="underline font-semibold text-gray-700 hover:text-km-green-primary">Terms & Conditions</a> and <a href="#" class="underline font-semibold text-gray-700 hover:text-km-green-primary">Privacy Policy</a>. I understand that agronomic advice should be confirmed with local KVK/extension experts before field application.
+            </label>
+          </div>
+        </div>
+
+        <button id="btn-complete-onboarding" onclick="handleOnboardingSubmit()" class="w-full h-12 mt-6 rounded-xl bg-[#092B1D] text-white text-sm font-semibold flex items-center justify-center gap-2 hover:bg-[#11402c] transition-colors active:scale-[0.98]">
+          <span>Start Using KrishiMitra AI</span> <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+        </button>
+      </div>
+
     </div>
   </div>
 
+  <!-- Invisible reCAPTCHA container for Firebase Phone Auth -->
+  <div id="recaptcha-container"></div>
+
   <div id="video-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 hidden">
-    <!-- Simplistic video modal placeholder -->
     <div class="bg-white rounded-xl p-6 max-w-lg w-full text-center relative">
       <button onclick="document.getElementById('video-modal').classList.add('hidden')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200">
         <span class="material-symbols-outlined text-[18px]">close</span>
@@ -576,6 +701,14 @@
     </div>
   </div>
 
+  <!-- Firebase SDK (compat mode for vanilla JS) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <!-- App Scripts (order matters) -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

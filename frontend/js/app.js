@@ -145,22 +145,7 @@ function playMockAudio() {
   }
 }
 
-// ── Auth Modal (Indian Mobile OTP) ───────────────────────────────────────────
-function openAuthModal() {
-  document.getElementById("auth-modal").classList.remove("hidden");
-  const phoneInp = document.getElementById("farmer-phone-input");
-  if (phoneInp) phoneInp.focus();
-}
-
-function closeAuthModal() {
-  document.getElementById("auth-modal").classList.add("hidden");
-}
-
-function handleSendOTP() {
-  alert("Feature in Development: SMS OTP Gateway is currently stubbed out for demo purposes.");
-  closeAuthModal();
-  showChatView();
-}
+// ── Auth functions are now in auth.js (Firebase Phone Auth) ─────────────────
 
 // ── Composer Auto-Expand ─────────────────────────────────────────────────────
 function initComposerAutoGrow() {
@@ -485,9 +470,16 @@ async function processAIQuery(query) {
   scrollToBottom();
 
   try {
+    // Build request headers — include Firebase auth token if available
+    const headers = { "Content-Type": "application/json" };
+    if (typeof getAuthToken === "function") {
+      const token = await getAuthToken();
+      if (token) headers["Authorization"] = "Bearer " + token;
+    }
+
     const res = await fetch(CHAT_ENDPOINT, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: headers,
       body: JSON.stringify({ question: query, language: currentLanguage })
     });
 

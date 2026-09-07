@@ -29,3 +29,5 @@ services:
         sync: false # Prompts you for secret value in Render dashboard
       - key: IBM_WATSONX_PROJECT_ID
         sync: false # Prompts you for project ID in Render dashboard
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false # Paste your Firebase service account JSON in Render dashboard

@@ -1,0 +1,1 @@
+"""KrishiMitra AI — Authentication package."""
