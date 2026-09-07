@@ -498,13 +498,14 @@ async function processAIQuery(query) {
     if (loadingElem) loadingElem.remove();
 
     appendParsedAIMessage(data.answer, data.sources || []);
-  } catch {
+  } catch (err) {
+    console.error("Chat request failed:", err);
     const loadingElem = document.getElementById(loadingId);
     if (loadingElem) loadingElem.remove();
 
     // Fallback Error Response
     appendParsedAIMessage(
-      `**Connection Error:** Unable to reach the KrishiMitra AI server. Please check your internet connection and ensure the backend API is running.`,
+      `**Connection Error:** Unable to reach the KrishiMitra AI server. Error details: ${err.message}. Please check your internet connection and ensure the backend API is running.`,
       []
     );
   } finally {
@@ -651,7 +652,10 @@ function appendParsedAIMessage(markdownText, sources) {
     sourcesHtml = `
       <div class="pt-2 border-t border-outline-subtle/50 flex items-center gap-2 flex-wrap text-[11px] text-on-surface-variant">
         <span class="font-semibold text-primary">Sources:</span>
-        ${sources.map(s => `<span class="bg-surface-subtle px-2 py-0.5 rounded border border-outline-subtle text-secondary font-medium">${escapeHtml(s)}</span>`).join("")}
+        ${sources.map(s => {
+          const sourceName = typeof s === 'string' ? s : (s.source || "Unknown");
+          return `<span class="bg-surface-subtle px-2 py-0.5 rounded border border-outline-subtle text-secondary font-medium" title="Score: ${s.score || ''}">${escapeHtml(sourceName)}</span>`;
+        }).join("")}
       </div>
     `;
   }
