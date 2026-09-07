@@ -65,8 +65,9 @@ def test_answer_calls_granite_generate(chat_service, mock_granite_service):
     """answer() must call granite_service.generate() with a non-empty prompt."""
     request = ChatRequest(question="What fertiliser for wheat?", language="en")
     chat_service.answer(request)
-    mock_granite_service.generate.assert_called_once()
-    prompt_arg = mock_granite_service.generate.call_args[0][0]
+    assert mock_granite_service.generate.call_count >= 1
+    # The last call should be the RAG prompt
+    prompt_arg = mock_granite_service.generate.call_args_list[-1][0][0]
     assert len(prompt_arg) > 50, "Prompt passed to Granite is too short"
 
 

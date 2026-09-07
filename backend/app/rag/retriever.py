@@ -21,9 +21,9 @@ from backend.app.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-# Only return chunks above this similarity threshold to avoid noise in context.
-# 0.3 is a conservative minimum; raise to 0.4–0.5 for stricter relevance.
-_MIN_SIMILARITY_THRESHOLD = 0.3
+from backend.app.config.settings import settings
+
+# We will use settings.RAG_MIN_RELEVANCE_SCORE instead of a hardcoded value
 
 
 class KnowledgeRetriever:
@@ -71,10 +71,11 @@ class KnowledgeRetriever:
         # Step 3: Filter low-relevance results and convert to typed model
         documents: List[RetrievedDocument] = []
         for result in raw_results:
-            if result["score"] < _MIN_SIMILARITY_THRESHOLD:
+            if result["score"] < settings.RAG_MIN_RELEVANCE_SCORE:
                 logger.debug(
-                    "Filtered low-relevance chunk (score=%.3f): %s",
+                    "Filtered low-relevance chunk (score=%.3f < %.3f): %s",
                     result["score"],
+                    settings.RAG_MIN_RELEVANCE_SCORE,
                     result["source"],
                 )
                 continue

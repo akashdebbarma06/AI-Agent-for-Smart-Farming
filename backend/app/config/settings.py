@@ -82,6 +82,10 @@ class Settings(BaseSettings):
         default="krishimitra_kb",
         description="Name of the ChromaDB collection holding knowledge-base embeddings.",
     )
+    RAG_MIN_RELEVANCE_SCORE: float = Field(
+        default=0.4,
+        description="Minimum similarity score required for a knowledge-base chunk to be considered relevant.",
+    )
 
     # ------------------------------------------------------------------
     # Application settings

@@ -40,120 +40,8 @@ const focusTools = [
 ];
 
 // ── Interactive Sample Data for Live Preview Section ────────────────────────
-const sampleData = {
-  paddy: {
-    query: "Paddy crop has brown spots and yellowing tips in West Bengal",
-    title: "Brown Plant Hopper (BPH) with Early Sheath Blight",
-    urgency: "Recommended Action Window: Within 24 to 36 Hours (Hopper burn threat high in alluvial basin)",
-    reasoning: "Current high relative humidity (>88%) and standing stagnant water in West Bengal’s lower Gangetic plains create an ideal microclimate for nymph multiplication. The sap-sucking nymphs cause xylem vascular collapse, presenting as yellow-orange discoloration progressing downwards from leaf apices.",
-    pest: "Nilaparvata lugens",
-    trigger: "Humidity 88% / 29°C",
-    etl: "5-10 hoppers / hill",
-    protocol: "Pkg Rabi-Rice #4B",
-    step1: "Drain Standing Water: Temporarily drain field standing water for 48 hours to expose nymph habitat at the base of tillers.",
-    step2: "Targeted Spray Application: Spray Pymetrozine 50% WG @ 120g/acre or Triflumuron 39.35% SC diluted in 200 Litres of clean water.",
-    step3: "Nozzle & Delivery Adjustment: Direct hollow-cone nozzle spray towards the lower canopy and stem base, not on top foliage.",
-    precaution: "Pre-Harvest Interval (PHI): Maintain a mandatory 19-day buffer before harvesting. Avoid synthetic pyrethroids (e.g., Cypermethrin) which induce secondary pest resurgence. Wear protective mask and gloves."
-  },
-  cotton: {
-    query: "Cotton leaves curling upwards with white flying insects and sticky black mold",
-    title: "Cotton Whitefly (Bemisia tabaci) & Associated Sooty Mold",
-    urgency: "Recommended Action Window: Immediate (Within 12 Hours before Leaf Curl Virus transmission)",
-    reasoning: "Prolonged dry spells followed by intermittent drizzle encourage rapid whitefly vector flare-ups. Excreted honeydew provides substrate for Capnodium sp. (sooty mold), severely impairing photosynthetic surface area on upper foliage.",
-    pest: "Bemisia tabaci (Whitefly)",
-    trigger: "Dry spell / Temp 32-35°C",
-    etl: "6-8 adults / leaf",
-    protocol: "ICAR-CICR Cotton #09",
-    step1: "Install Yellow Sticky Traps: Place 8-10 bright yellow sticky traps per acre at crop canopy height to monitor adult swarm density.",
-    step2: "Systemic Foliar Spray: Apply Afidopyropen 50 g/L DC @ 400 ml/acre or Diafenthiuron 50% WP @ 240g/acre mixed in 200L water.",
-    step3: "Neem Bio-barrier: Follow up with 5ml/L Cold-Pressed Neem Oil (10,000 ppm azadirachtin) after 5 days as a natural oviposition deterrent.",
-    precaution: "Never spray during peak pollination hours (9 AM - 11 AM) to safeguard honeybees. Observe 30-day PHI before boll picking."
-  },
-  tomato: {
-    query: "Tomato plants flowering stage: calculate balanced NPK and Zinc booster ratio",
-    title: "Stage-Specific Nutrient Plan: Flowering to Fruit Set (Tomato)",
-    urgency: "Recommended Action Window: Scheduled Split-Application (Next Irrigation Turn)",
-    reasoning: "Excessive Nitrogen at the pre-bloom stage induces vegetative hypertrophy, leading to flower abscission and poor fruit set. Shifting the ratio toward high Potassium with chelated Zinc and Boron accelerates flower retention and cell wall elasticity.",
-    pest: "Nutrient Partitioning Deficit",
-    trigger: "Early flowering flush",
-    etl: "Target: 45-50 T/Ha",
-    protocol: "IIHR Precision Tomato Spec",
-    step1: "Fertigation Split: Apply water-soluble N:P:K 13:0:45 (Potassium Nitrate) @ 3.5 kg/acre per fertigation cycle twice a week.",
-    step2: "Micronutrient Foliar Spray: Spray Boron (20% Solubor) @ 1g/L and Chelated Zinc (EDTA Zn 12%) @ 1g/L during cool evening hours.",
-    step3: "Calcium Fortification: Apply Calcium Nitrate @ 2.5 kg/acre to soil to prevent future Blossom End Rot (BER) in developing fruits.",
-    precaution: "Do not mix Calcium Nitrate with Phosphatic fertilizers (e.g., 0:52:34) in the same tank to prevent insoluble precipitation."
-  },
-  mustard: {
-    query: "Mustard pods and tender shoots covered with dense green-black aphids",
-    title: "Mustard Aphid (Lipaphis erysimi) Colony Arrest",
-    urgency: "Recommended Action Window: Within 24 Hours (Flowering stage vulnerability)",
-    reasoning: "Overcast conditions and cold morning fog create peak multiplication conditions for mustard aphids. Both nymphs and adults desap the inflorescence and siliquae, causing pod curling, stunted seed filling, and up to 40% oil loss.",
-    pest: "Lipaphis erysimi (Aphid)",
-    trigger: "Overcast / High Fog Index",
-    etl: "1.5-2 cm colony / twig",
-    protocol: "DRMR Bharatpur Protocol",
-    step1: "Selective Perimeter Spray: If infestation is confined to field margins, treat border rows first to preserve predatory Ladybird beetles.",
-    step2: "Targeted Chemistry: Spray Dimethoate 30% EC @ 1.7 ml/L or Thiamethoxam 25% WG @ 0.2g/L using a fine mist knapsack sprayer.",
-    step3: "Irrigation Scheduling: Provide light furrow irrigation 24 hours after spray to restore root turgor without washing away chemical.",
-    precaution: "Avoid spraying during active bee foraging hours (mid-day). Strictly adhere to a 15-day pre-harvest waiting period."
-  }
-};
-
-// ── Pre-stored consultation history data for AI Chat ────────────────────────
-const consultationPresets = {
-  "tomato-leaf-curl": {
-    query: "My tomato plant leaves are curling upwards and showing yellow veins. Some flowers are dropping. What should I do?",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAKvkSRT0gDaNwWtciIk9XRgRLeqV_QaRYBB4z9ofrqu5xSI_x6rQwow5uLpPdBPPOhNVAKmhQ4E1gMZMnhQTbj4_WjmKR13qY66aJca_ayIZ-iC3-2Cl9jWhRodNpRKL9LVwHNT6wJIDlQTFk7PdMdABRSoxol0Xb9KAlNq4RTTn2elWyu94PKPjH4QtmqVrkJMr7o3gPvwOgGrLtBzX5n4QQVj5M-V3FteZPPfMsyq5BIPFubUPDq",
-    title: "Tomato Yellow Leaf Curl Virus (TYLCV) Vector Suppression",
-    directAnswer: "Immediately deploy bright yellow sticky traps (6–8/acre) and spray cold-pressed Neem Seed Oil (10,000 ppm) @ 3 ml/L with 1 ml khadi soap to arrest the Whitefly (Bemisia tabaci) vector before floral abortion worsens.",
-    reasoning: "TYLCV is a systemic geminivirus. Chemical sprays cannot cure infected leaves directly; intervention is entirely focused on suppressing the sap-sucking whitefly vector to safeguard undamaged lateral shoots and fruit set.",
-    metrics: [
-      { label: "Yield Loss Risk", val: "40–70%", sub: "if untreated" },
-      { label: "Vector Cycle", val: "14 Days", sub: "multiplication" },
-      { label: "Action Window", val: "48 Hours", sub: "critical" }
-    ],
-    steps: [
-      { num: 1, title: "Install Yellow Sticky Traps:", desc: "Mount 6 to 8 traps/acre at canopy height to capture reproducing adults." },
-      { num: 2, title: "Rogue Diseased Reservoirs:", desc: "Uproot severely stunted plants showing dense yellow vein mosaic and seal in disposal bags away from field borders." },
-      { num: 3, title: "Targeted Bio/Chemical Spray:", desc: "Apply cold-pressed Neem Oil (10,000 ppm) @ 3 ml/L or Diafenthiuron 50% WP @ 240g/acre in 200L clean water targeting leaf undersides." }
-    ],
-    caution: "Adhere strictly to CIBRC registered dosages and mandatory Pre-Harvest Intervals (PHI). Never spray systemic insecticides during peak morning pollinator flight hours."
-  },
-  "urea-dosage-paddy": {
-    query: "What is the recommended split dosage of Urea for Basmati Paddy during panicle initiation?",
-    title: "Basmati Paddy Nitrogen Partitioning & Urea Top-Dressing",
-    directAnswer: "Apply 25 kg/acre Urea blended with 5 kg Zinc Sulphate (21%) as the final top-dress at 45–50 days after transplanting (DAT) under moist, shallow-drained soil conditions.",
-    reasoning: "Basmati cultivars require 25-30% lower nitrogen than semi-dwarf varieties. Indiscriminate excess promotes vegetative lodging and increases susceptibility to sheath blight and blast.",
-    metrics: [
-      { label: "Split Dose", val: "25 kg/Acre", sub: "Urea" },
-      { label: "LCC Threshold", val: "Score < 4", sub: "Leaf Colour" },
-      { label: "Aroma Lock", val: "+18%", sub: "Grain quality" }
-    ],
-    steps: [
-      { num: 1, title: "Check Leaf Colour Chart (LCC):", desc: "Compare upper fully expanded leaves with the standard ICAR LCC. Apply only if greenness is below shade 4." },
-      { num: 2, title: "Broadcast Neem-Coated Urea:", desc: "Broadcast evenly after morning dew has completely evaporated to prevent foliar scorch." },
-      { num: 3, title: "Irrigation Scheduling:", desc: "Re-introduce a 2–3 cm shallow water layer 24 hours after application to minimize leaching." }
-    ],
-    caution: "Do not apply nitrogen fertilizers immediately preceding heavy rainfall forecasts to prevent nutrient runoff into drainage channels."
-  },
-  "black-soil-moisture": {
-    query: "How can I improve soil moisture retention and prevent deep cracks in black cotton soil?",
-    title: "Vertisol Black Cotton Soil Moisture Conservation",
-    directAnswer: "Implement shallow dust mulching (inter-cultivation with a blade harrow) and spread 2 tonnes/acre of organic crop residue to break capillary pores and lock deep root-zone moisture.",
-    reasoning: "High smectite clay content in Vertisols expands when wet and shrinks dramatically when dry. Deep structural fissures accelerate subsoil convective evaporation.",
-    metrics: [
-      { label: "Moisture Saved", val: "35–40%", sub: "Capillary lock" },
-      { label: "Crack Mitigation", val: "65%", sub: "Physical barrier" },
-      { label: "Operating Cost", val: "Minimal", sub: "Farm biomass" }
-    ],
-    steps: [
-      { num: 1, title: "Shallow Inter-Cultivation:", desc: "Run a blade harrow (Danti/Kolpa) across crop rows to create a 2-inch pulverized soil mulch." },
-      { num: 2, title: "Biomass Mulch Blanket:", desc: "Spread dry straw or sugarcane bagasse across beds to moderate soil surface temperatures." },
-      { num: 3, title: "Broad Bed & Furrow Layout:", desc: "Adopt BBF layout for subsequent sowing cycles for optimal drainage and moisture capture." }
-    ],
-    caution: "Avoid machinery movement when soil moisture is near field capacity to prevent severe subsoil compaction."
-  }
-};
+const sampleData = {};
+const consultationPresets = {};
 
 // ── DOM Initialization ───────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
@@ -269,24 +157,9 @@ function closeAuthModal() {
 }
 
 function handleSendOTP() {
-  const phoneInp = document.getElementById("farmer-phone-input");
-  const btn = document.getElementById("btn-send-otp");
-  const val = phoneInp ? phoneInp.value.trim() : "";
-  
-  if (val.length < 10) {
-    alert("Please enter a valid 10-digit mobile number.");
-    return;
-  }
-
-  btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-base">progress_activity</span><span>Sending OTP...</span>`;
-  setTimeout(() => {
-    btn.innerHTML = `<span class="material-symbols-outlined text-base">check_circle</span><span>OTP Sent! Verifying...</span>`;
-    setTimeout(() => {
-      closeAuthModal();
-      showChatView();
-      btn.innerHTML = `<span>Continue with OTP</span><span class="material-symbols-outlined text-base">arrow_forward</span>`;
-    }, 1000);
-  }, 900);
+  alert("Feature in Development: SMS OTP Gateway is currently stubbed out for demo purposes.");
+  closeAuthModal();
+  showChatView();
 }
 
 // ── Composer Auto-Expand ─────────────────────────────────────────────────────
@@ -378,26 +251,8 @@ function changeLanguage(lang) {
 
 // ── Image Attachment Handling ────────────────────────────────────────────────
 function handleImageSelection(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    attachedImageData = {
-      name: file.name,
-      url: event.target.result,
-      file: file
-    };
-
-    const preview = document.getElementById("hero-img-preview");
-    if (preview) {
-      document.getElementById("hero-img-thumb").src = event.target.result;
-      document.getElementById("hero-img-name").textContent = file.name;
-      preview.classList.remove("hidden");
-      preview.classList.add("flex");
-    }
-  };
-  reader.readAsDataURL(file);
+  alert("Feature in Development: Real-time image attachment and plant-disease CV models are coming soon.");
+  // Removed hardcoded local logic
 }
 
 function removeAttachedImage() {
@@ -455,18 +310,8 @@ function initVoiceRecognition() {
 }
 
 function toggleVoiceInput() {
-  if (!recognition) {
-    alert("Speech recognition is not supported in this browser. Please use Chrome or Edge.");
-    return;
-  }
-
-  if (isRecordingVoice) {
-    recognition.stop();
-  } else {
-    const langMap = { en: "en-IN", hi: "hi-IN", te: "te-IN", bn: "bn-IN" };
-    recognition.lang = langMap[currentLanguage] || "en-IN";
-    recognition.start();
-  }
+  alert("Feature in Development: Live voice synthesis and recognition is currently unavailable in this release.");
+  return;
 }
 
 function updateMicButtonUI(recording) {

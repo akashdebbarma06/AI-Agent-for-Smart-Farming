@@ -37,6 +37,7 @@ async def health(request: Request) -> HealthStatus:
             "status": "ok",
             "collection": request.app.state.chroma_collection_name,
             "chunks_indexed": chunk_count,
+            "rag_min_relevance_score": getattr(request.app.state, "rag_min_relevance_score", 0.4),
             "note": "Run scripts/ingest_knowledge_base.py if chunks_indexed is 0."
             if chunk_count == 0
             else None,

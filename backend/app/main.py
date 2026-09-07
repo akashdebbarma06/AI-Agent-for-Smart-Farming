@@ -62,6 +62,21 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Store metadata for the health check endpoint
     app.state.chroma_collection_name = settings.CHROMA_COLLECTION_NAME
     app.state.granite_model_id = settings.IBM_GRANITE_MODEL_ID
+    app.state.rag_min_relevance_score = settings.RAG_MIN_RELEVANCE_SCORE
+
+    # Auto-ingest knowledge base if ChromaDB is empty (useful for ephemeral environments like Render)
+    try:
+        if rag_pipeline._retriever._vector_store.count == 0:
+            logger.info("ChromaDB is empty. Auto-ingesting knowledge base from data/knowledge_base...")
+            from pathlib import Path
+            kb_dir = Path("data/knowledge_base")
+            if kb_dir.exists():
+                chunks = rag_pipeline.ingest_directory(str(kb_dir))
+                logger.info("Auto-ingested %d chunks successfully.", chunks)
+            else:
+                logger.warning("Knowledge base directory %s not found. Auto-ingestion skipped.", kb_dir)
+    except Exception as e:
+        logger.error("Auto-ingestion failed during startup: %s", e)
 
     logger.info("KrishiMitra AI — all services initialised, ready to serve requests.")
 
@@ -102,6 +117,18 @@ def create_app() -> FastAPI:
 
     app.include_router(chat_router, prefix="/api/v1")
     app.include_router(health_router, prefix="/api/v1")
+
+    # Global Exception Handler
+    from fastapi import Request
+    from fastapi.responses import JSONResponse
+    
+    @app.exception_handler(Exception)
+    async def global_exception_handler(request: Request, exc: Exception):
+        logger.error(f"Unhandled exception on {request.url.path}: {exc}", exc_info=True)
+        return JSONResponse(
+            status_code=500,
+            content={"message": "An unexpected error occurred. Please try again later."},
+        )
 
     return app
 

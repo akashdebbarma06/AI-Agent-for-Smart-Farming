@@ -213,7 +213,7 @@ Returns component status.
   "version": "1.0.0",
   "components": {
     "chroma": { "status": "ok", "chunks_indexed": 87 },
-    "granite": { "status": "configured", "model": "ibm/granite-3-3-8b-instruct" }
+    "granite": { "status": "configured", "model": "ibm/granite-4-h-small" }
   }
 }
 ```
@@ -243,8 +243,8 @@ To add new knowledge: place `.md` or `.txt` files in the appropriate subdirector
 | Knowledge-base content | ✅ Available | ✅ Available |
 | Knowledge-base ingestion | ❌ Requires IBM Embeddings API | ✅ Works |
 | Chat responses | ❌ Requires IBM Granite API | ✅ Works |
-| Mandi prices | ⚠️ Sample data only | ⚠️ Sample data only (live API not yet connected) |
-| Weather data | ⚠️ General guidance only | ⚠️ General guidance only (live API not yet connected) |
+| Mandi prices | ⚠️ Uses stubbed fallback data | ✅ Uses live e-NAM/stubbed data via tool |
+| Weather data | ⚠️ Uses stubbed fallback data | ✅ Uses live Open-Meteo API tool |
 
 **To run without IBM credentials for UI development only:**  
 You can stub out `GraniteService.generate()` and `WatsonxEmbedder.embed()` for local frontend testing. See `docs/architecture.md` for guidance.
@@ -289,8 +289,8 @@ KrishiMitra AI provides **general guidance** based on its knowledge base. It is 
 
 | Component | IBM Service / Product |
 |-----------|-----------------------|
-| Language Model | IBM Granite (`ibm/granite-3-3-8b-instruct`) via IBM watsonx.ai |
-| Embedding Model | IBM Slate (`ibm/slate-125m-english-rtrvr`) via IBM watsonx.ai |
+| Language Model | IBM Granite (`ibm/granite-4-h-small`) via IBM watsonx.ai |
+| Embedding Model | IBM Granite (`ibm/granite-embedding-278m-multilingual`) via IBM watsonx.ai |
 | SDK | `ibm-watsonx-ai` Python SDK |
 | Cloud Platform | IBM Cloud Lite (free tier sufficient for development) |
 
